@@ -142,6 +142,40 @@ app.post('/api/auth/login', loginValidation, async (req, res) => {
   }
 });
 
+// Auth Middleware
+const authMiddleware = async (req, res, next) => {
+  try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({ message: 'No token, authorization denied' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const user = await User.findById(decoded.userId);
+    
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Token is not valid' });
+  }
+};
+
+// Profile Route
+app.get('/api/auth/profile', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    res.json(user);
+  } catch (error) {
+    console.error('Profile error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
