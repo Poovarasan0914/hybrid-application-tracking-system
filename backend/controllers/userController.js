@@ -121,10 +121,10 @@ exports.createBotUser = async (req, res) => {
 
         await createAuditLog({
             userId: req.user._id,
-            action: 'CREATE',
-            resourceType: 'USER',
+            action: 'USER_CREATE',
+            resourceType: 'user',
             resourceId: botUser._id,
-            details: 'Admin created bot user'
+            description: 'Admin created bot user'
         });
 
         res.status(201).json({

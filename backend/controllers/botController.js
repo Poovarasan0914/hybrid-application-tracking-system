@@ -31,9 +31,10 @@ exports.getDashboard = async (req, res) => {
         // Create audit log for bot dashboard access
         await createAuditLog({
             userId: req.user._id,
-            action: 'VIEW',
-            resourceType: 'BOT_DASHBOARD',
-            details: 'Bot accessed dashboard data'
+            action: 'ADMIN_ACTION',
+            resourceType: 'user',
+            resourceId: req.user._id,
+            description: 'Bot accessed dashboard data'
         });
 
         res.json({
@@ -103,10 +104,10 @@ exports.processApplications = async (req, res) => {
                 // Create audit log
                 await createAuditLog({
                     userId: req.user._id,
-                    action: 'BOT_PROCESS',
-                    resourceType: 'APPLICATION',
+                    action: 'APPLICATION_STATUS_CHANGE',
+                    resourceType: 'application',
                     resourceId: application._id,
-                    details: `Bot processed application: ${application.jobId.title}`
+                    description: `Bot processed application: ${application.jobId.title}`
                 });
 
                 processedApplications.push(application);
@@ -165,10 +166,10 @@ exports.simulateUpdates = async (req, res) => {
             // Create audit log
             await createAuditLog({
                 userId: req.user._id,
-                action: 'BOT_SIMULATE',
-                resourceType: 'APPLICATION',
+                action: 'APPLICATION_STATUS_CHANGE',
+                resourceType: 'application',
                 resourceId: app._id,
-                details: `Bot simulated update for: ${app.jobId.title}`
+                description: `Bot simulated update for: ${app.jobId.title}`
             });
 
             updatedApplications.push(app);

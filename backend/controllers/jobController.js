@@ -140,10 +140,10 @@ exports.createJob = async (req, res) => {
         // Create audit log
         await createAuditLog({
             userId: req.user._id,
-            action: 'CREATE',
-            resourceType: 'JOB',
+            action: 'JOB_CREATE',
+            resourceType: 'job',
             resourceId: job._id,
-            details: `Job created: ${job.title}`
+            description: `Job created: ${job.title}`
         });
 
         res.status(201).json(job);
@@ -187,7 +187,17 @@ exports.deleteJob = async (req, res) => {
             return res.status(404).json({ message: 'Job not found' });
         }
 
-        await job.remove();
+        await job.deleteOne();
+
+        // Create audit log
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'JOB_DELETE',
+            resourceType: 'job',
+            resourceId: job._id,
+            description: `Job deleted: ${job.title}`
+        });
+
         res.json({ message: 'Job deleted successfully' });
     } catch (error) {
         console.error('Delete job error:', error);
