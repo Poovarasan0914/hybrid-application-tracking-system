@@ -46,7 +46,7 @@ const AdminDashboard = () => {
   }, []); // Remove success and error from dependencies to prevent unnecessary re-renders
 
   if (loading) return <LoadingSpinner />;
-  if (!dashboardData) return <div style={{ padding: '20px', fontSize: '16px', color: '#666' }}>Failed to load dashboard data</div>;
+  if (!dashboardData) return <div style={{ padding: '20px', fontSize: '16px', color: 'var(--text-muted)' }}>Failed to load dashboard data</div>;
 
   const statusData = Object.entries(dashboardData.applicationStats || {}).map(([status, count]) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
@@ -61,61 +61,62 @@ const AdminDashboard = () => {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
   const cardStyle = {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'var(--surface)',
     borderRadius: '8px',
     padding: '20px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    border: '1px solid #e0e0e0'
+    boxShadow: 'var(--shadow-sm)',
+    border: '1px solid var(--border)'
   };
 
   const titleStyle = {
     fontSize: '16px',
     fontWeight: '600',
-    color: '#333',
+    color: 'var(--text)',
     margin: '0 0 16px 0',
-    fontFamily: 'Arial, sans-serif'
+    fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif'
   };
 
   const numberStyle = {
     fontSize: '32px',
     fontWeight: '700',
     margin: '0 0 8px 0',
-    fontFamily: 'Arial, sans-serif'
+    fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+    color: 'var(--text)'
   };
 
   const labelStyle = {
     fontSize: '14px',
-    color: '#666',
+    color: 'var(--text-muted)',
     margin: '0',
-    fontFamily: 'Arial, sans-serif'
+    fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif'
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: '600', color: '#333', marginBottom: '24px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Admin Dashboard</h1>
+    <div className="container" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
+      <h1 style={{ fontSize: '24px', fontWeight: '600', color: 'var(--text)', marginBottom: '24px', fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>Admin Dashboard</h1>
       
       {/* Key Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '24px' }}>
         <div style={cardStyle}>
-          <div style={{ ...numberStyle, color: '#1976d2' }}>{dashboardData.totalApplications || 0}</div>
+          <div style={{ ...numberStyle, color: 'var(--primary-600)' }}>{dashboardData.totalApplications || 0}</div>
           <div style={labelStyle}>Total Applications</div>
         </div>
         <div style={cardStyle}>
-          <div style={{ ...numberStyle, color: '#2e7d32' }}>{dashboardData.totalJobs || 0}</div>
+          <div style={{ ...numberStyle, color: 'var(--success-600)' }}>{dashboardData.totalJobs || 0}</div>
           <div style={labelStyle}>Active Jobs</div>
         </div>
         <div style={cardStyle}>
-          <div style={{ ...numberStyle, color: '#0288d1' }}>{dashboardData.recentApplications || 0}</div>
+          <div style={{ ...numberStyle, color: 'var(--primary-700)' }}>{dashboardData.recentApplications || 0}</div>
           <div style={labelStyle}>Recent Applications (7 days)</div>
         </div>
         <div style={cardStyle}>
-          <div style={{ ...numberStyle, color: '#f57c00' }}>{dashboardData.activeUsers || 0}</div>
+          <div style={{ ...numberStyle, color: 'var(--warning-600)' }}>{dashboardData.activeUsers || 0}</div>
           <div style={labelStyle}>Active Users</div>
         </div>
       </div>
 
       {/* Charts */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
         <div style={cardStyle}>
           <h3 style={titleStyle}>Application Status Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
@@ -157,13 +158,13 @@ const AdminDashboard = () => {
       <div style={{ ...cardStyle, marginTop: '24px' }}>
         <h3 style={titleStyle}>Admin Information</h3>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ padding: '6px 12px', backgroundColor: '#1976d2', color: 'white', borderRadius: '16px', fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>
+          <span style={{ padding: '6px 12px', backgroundColor: 'var(--primary-600)', color: 'white', borderRadius: '16px', fontSize: '14px', fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
             Admin: {dashboardData.adminInfo?.name}
           </span>
-          <span style={{ padding: '6px 12px', backgroundColor: '#9c27b0', color: 'white', borderRadius: '16px', fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>
+          <span style={{ padding: '6px 12px', backgroundColor: 'var(--primary-700)', color: 'white', borderRadius: '16px', fontSize: '14px', fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
             Manages: Non-Technical Roles
           </span>
-          <span style={{ fontSize: '14px', color: '#666', fontFamily: 'Arial, sans-serif' }}>
+          <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>
             Last Access: {new Date(dashboardData.adminInfo?.lastAccess).toLocaleString()}
           </span>
         </div>

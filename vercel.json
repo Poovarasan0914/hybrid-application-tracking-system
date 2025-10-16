@@ -12,9 +12,10 @@
       "src": "/api/(.*)",
       "dest": "{env:BACKEND_URL}/api/$1"
     },
+    { "handle": "filesystem" },
     {
       "src": "/(.*)",
-      "dest": "frontend/dist/$1"
+      "dest": "/index.html"
     }
   ],
   "env": {

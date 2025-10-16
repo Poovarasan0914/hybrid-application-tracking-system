@@ -22,38 +22,41 @@ const JobManagement = () => {
 
   const commonStyles = {
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    fontSize: '14px'
+    fontSize: '15px',
+    color: 'var(--text)'
   };
 
   const buttonStyle = {
     ...commonStyles,
-    padding: '8px 16px',
-    border: 'none',
-    borderRadius: '4px',
+    padding: '10px 14px',
+    border: '1px solid var(--border)',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '500'
   };
 
   const primaryButton = {
     ...buttonStyle,
-    backgroundColor: '#1976d2',
+    backgroundColor: 'var(--primary-600)',
+    borderColor: 'var(--primary-600)',
     color: 'white'
   };
 
   const secondaryButton = {
     ...buttonStyle,
     backgroundColor: 'transparent',
-    color: '#1976d2',
-    border: '1px solid #1976d2'
+    color: 'var(--primary-600)',
+    border: '1px solid var(--primary-600)'
   };
 
   const inputStyle = {
     ...commonStyles,
     width: '100%',
     padding: '12px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    marginBottom: '16px'
+    border: '1px solid var(--border)',
+    borderRadius: '8px',
+    marginBottom: '16px',
+    background: 'var(--surface)'
   };
 
   const load = async () => {
@@ -88,17 +91,17 @@ const JobManagement = () => {
   };
 
   return (
-    <div style={{ padding: '20px', ...commonStyles }}>
+    <div className="container" style={{ padding: '20px', ...commonStyles }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#333', margin: 0 }}>Jobs</h2>
+        <h2 style={{ fontSize: '22px', fontWeight: '600', color: 'var(--text)', margin: 0 }}>Jobs</h2>
         <button onClick={() => handleOpen()} style={primaryButton}>New Job</button>
       </div>
 
-      <div style={{ backgroundColor: 'white', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', ...commonStyles }}>
+      <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
           <thead>
-            <tr style={{ backgroundColor: '#f5f5f5' }}>
-              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Title</th>
+            <tr style={{ backgroundColor: 'var(--surface-2)' }}>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600' }}>Title</th>
               <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Department</th>
               <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Employment</th>
               <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Role Category</th>
@@ -109,7 +112,7 @@ const JobManagement = () => {
           </thead>
           <tbody>
             {jobs.map(j => (
-              <tr key={j._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
+              <tr key={j._id} style={{ borderBottom: '1px solid var(--border)' }}>
                 <td style={{ padding: '12px' }}>{j.title}</td>
                 <td style={{ padding: '12px' }}>{j.department}</td>
                 <td style={{ padding: '12px' }}>{j.type}</td>
@@ -117,8 +120,8 @@ const JobManagement = () => {
                 <td style={{ padding: '12px' }}>{j.location}</td>
                 <td style={{ padding: '12px' }}>{(j.deadline || '').toString().slice(0, 10)}</td>
                 <td style={{ padding: '12px', textAlign: 'right' }}>
-                  <button onClick={() => handleOpen(j)} style={{ ...secondaryButton, marginRight: '8px', padding: '4px 8px' }}>✏️ Edit</button>
-                  <button onClick={() => handleDelete(j._id)} style={{ ...primaryButton, backgroundColor: '#d32f2f', padding: '4px 8px' }}>🗑️ Delete</button>
+                  <button onClick={() => handleOpen(j)} style={{ ...secondaryButton, marginRight: '8px', padding: '6px 10px' }}>✏️ Edit</button>
+                  <button onClick={() => handleDelete(j._id)} style={{ ...primaryButton, backgroundColor: 'var(--danger-600)', borderColor: 'var(--danger-600)', padding: '6px 10px' }}>🗑️ Delete</button>
                 </td>
               </tr>
             ))}
@@ -128,7 +131,7 @@ const JobManagement = () => {
 
       {open && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', width: '90%', maxWidth: '600px', maxHeight: '90vh', overflow: 'auto' }}>
+          <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '24px', width: '90%', maxWidth: '600px', maxHeight: '90vh', overflow: 'auto', boxShadow: 'var(--shadow-lg)' }}>
             <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600' }}>{editing ? 'Edit Job' : 'New Job'}</h3>
             
             <div style={{ marginBottom: '16px' }}>

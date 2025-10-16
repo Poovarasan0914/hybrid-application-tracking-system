@@ -21,6 +21,24 @@ const JobDetailsPage = () => {
   const [applyOpen, setApplyOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
 
+  const formatSalaryDisplay = (salary) => {
+    if (salary === null || salary === undefined) return 'Not specified';
+    if (typeof salary === 'number') return formatCurrency(salary);
+    if (typeof salary === 'string') {
+      const parsed = parseFloat(salary);
+      return Number.isFinite(parsed) ? formatCurrency(parsed) : salary;
+    }
+    const currency = salary.currency || 'USD';
+    const min = salary.min !== undefined && salary.min !== null ? Number(salary.min) : undefined;
+    const max = salary.max !== undefined && salary.max !== null ? Number(salary.max) : undefined;
+    const hasMin = Number.isFinite(min);
+    const hasMax = Number.isFinite(max);
+    if (hasMin && hasMax) return `${formatCurrency(min, currency)} - ${formatCurrency(max, currency)}`;
+    if (hasMin) return `${formatCurrency(min, currency)}+`;
+    if (hasMax) return `Up to ${formatCurrency(max, currency)}`;
+    return 'Not specified';
+  };
+
   const fetchJob = async () => {
     setLoading(true);
     setError('');
@@ -85,26 +103,22 @@ const JobDetailsPage = () => {
 
   if (loading) return <LoadingSpinner fullScreen={false} />;
   if (error) return (
-    <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 20px' }}>
+    <div className="container" style={{ maxWidth: '800px', margin: '2rem auto' }}>
       <ErrorMessage error={error} onRetry={fetchJob} />
     </div>
   );
   if (!job) return null;
 
   return (
-    <div style={{
-      maxWidth: '800px',
-      margin: '0 auto',
-      padding: '2rem 20px'
-    }}>
+    <div className="container" style={{ maxWidth: '900px', paddingTop: '24px', paddingBottom: '24px' }}>
       {applyError && (
         <div style={{
-          padding: '1rem',
-          backgroundColor: '#fee2e2',
+          padding: '16px',
+          backgroundColor: 'var(--danger-100)',
           border: '1px solid #ef4444',
           borderRadius: '8px',
-          color: '#dc2626',
-          marginBottom: '1.5rem',
+          color: 'var(--danger-600)',
+          marginBottom: '24px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
@@ -115,7 +129,7 @@ const JobDetailsPage = () => {
             style={{
               background: 'none',
               border: 'none',
-              color: '#dc2626',
+              color: 'var(--danger-600)',
               cursor: 'pointer',
               fontSize: '1.2rem'
             }}
@@ -127,12 +141,12 @@ const JobDetailsPage = () => {
 
       {applySuccess && (
         <div style={{
-          padding: '1rem',
-          backgroundColor: '#dcfce7',
+          padding: '16px',
+          backgroundColor: 'var(--success-100)',
           border: '1px solid #22c55e',
           borderRadius: '8px',
-          color: '#15803d',
-          marginBottom: '1.5rem',
+          color: 'var(--success-600)',
+          marginBottom: '24px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
@@ -143,7 +157,7 @@ const JobDetailsPage = () => {
             style={{
               background: 'none',
               border: 'none',
-              color: '#15803d',
+              color: 'var(--success-600)',
               cursor: 'pointer',
               fontSize: '1.2rem'
             }}
@@ -158,19 +172,22 @@ const JobDetailsPage = () => {
         style={{
           display: 'inline-flex',
           alignItems: 'center',
-          padding: '0.5rem 1rem',
+          padding: '8px 12px',
           backgroundColor: 'transparent',
-          border: 'none',
-          color: '#2563eb',
+          border: '1px solid var(--border)',
+          color: 'var(--primary-600)',
+          borderRadius: '6px',
           fontWeight: '500',
           cursor: 'pointer',
-          marginBottom: '1.5rem'
+          marginBottom: '24px'
         }}
         onMouseOver={(e) => {
-          e.currentTarget.style.color = '#1d4ed8';
+          e.currentTarget.style.color = 'var(--primary-700)';
+          e.currentTarget.style.backgroundColor = 'var(--primary-100)';
         }}
         onMouseOut={(e) => {
-          e.currentTarget.style.color = '#2563eb';
+          e.currentTarget.style.color = 'var(--primary-600)';
+          e.currentTarget.style.backgroundColor = 'transparent';
         }}
       >
         <span style={{ marginRight: '0.5rem' }}>←</span>
@@ -178,15 +195,16 @@ const JobDetailsPage = () => {
       </button>
 
       <div style={{
-        backgroundColor: '#ffffff',
-        borderRadius: '16px',
-        padding: '2rem',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        backgroundColor: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '12px',
+        padding: '24px',
+        boxShadow: 'var(--shadow-sm)'
       }}>
         <h1 style={{
-          fontSize: '2.25rem',
-          color: '#1f2937',
-          marginBottom: '1rem',
+          fontSize: '2rem',
+          color: 'var(--text)',
+          marginBottom: '16px',
           fontWeight: '600'
         }}>
           {job.title}
@@ -195,14 +213,14 @@ const JobDetailsPage = () => {
         <div style={{
           display: 'flex',
           flexWrap: 'wrap',
-          gap: '1rem',
-          marginBottom: '2rem'
+          gap: '12px',
+          marginBottom: '24px'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            color: '#4b5563',
-            fontSize: '0.875rem'
+            color: 'var(--text-muted)',
+            fontSize: '0.95rem'
           }}>
             <span style={{ marginRight: '0.5rem' }}>📍</span>
             {job.location}
@@ -210,8 +228,8 @@ const JobDetailsPage = () => {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            color: '#4b5563',
-            fontSize: '0.875rem'
+            color: 'var(--text-muted)',
+            fontSize: '0.95rem'
           }}>
             <span style={{ marginRight: '0.5rem' }}>💼</span>
             {job.type}
@@ -219,29 +237,30 @@ const JobDetailsPage = () => {
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            color: '#4b5563',
-            fontSize: '0.875rem'
+            color: 'var(--text-muted)',
+            fontSize: '0.95rem'
           }}>
             <span style={{ marginRight: '0.5rem' }}>💰</span>
-            {formatCurrency(job.salary)}
+            {formatSalaryDisplay(job.salary)}
           </div>
         </div>
 
         <div style={{
           display: 'flex',
-          gap: '0.75rem',
+          gap: '8px',
           flexWrap: 'wrap',
-          marginBottom: '2rem'
+          marginBottom: '24px'
         }}>
           {job.skills?.map((skill, index) => (
             <span
               key={index}
               style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#f3f4f6',
-                color: '#4b5563',
+                padding: '6px 12px',
+                backgroundColor: 'var(--primary-100)',
+                color: 'var(--primary-700)',
+                border: '1px solid var(--primary-200)',
                 borderRadius: '9999px',
-                fontSize: '0.875rem'
+                fontSize: '0.9rem'
               }}
             >
               {skill}
@@ -252,15 +271,15 @@ const JobDetailsPage = () => {
         <div style={{ marginBottom: '2rem' }}>
           <h2 style={{
             fontSize: '1.25rem',
-            color: '#374151',
-            marginBottom: '1rem',
+            color: 'var(--text)',
+            marginBottom: '12px',
             fontWeight: '600'
           }}>
             Description
           </h2>
           <div style={{
-            color: '#4b5563',
-            lineHeight: '1.625',
+            color: 'var(--text-muted)',
+            lineHeight: '1.7',
             whiteSpace: 'pre-wrap'
           }}>
             {job.description}
@@ -270,15 +289,15 @@ const JobDetailsPage = () => {
         <div style={{ marginBottom: '2rem' }}>
           <h2 style={{
             fontSize: '1.25rem',
-            color: '#374151',
-            marginBottom: '1rem',
+            color: 'var(--text)',
+            marginBottom: '12px',
             fontWeight: '600'
           }}>
             Requirements
           </h2>
           <div style={{
-            color: '#4b5563',
-            lineHeight: '1.625',
+            color: 'var(--text-muted)',
+            lineHeight: '1.7',
             whiteSpace: 'pre-wrap'
           }}>
             {job.requirements}
@@ -286,17 +305,17 @@ const JobDetailsPage = () => {
         </div>
 
         <div style={{
-          borderTop: '1px solid #e5e7eb',
-          paddingTop: '2rem',
+          borderTop: '1px solid var(--border)',
+          paddingTop: '24px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '1rem'
+          gap: '12px'
         }}>
           <div style={{
-            color: '#6b7280',
-            fontSize: '0.875rem'
+            color: 'var(--text-subtle)',
+            fontSize: '0.95rem'
           }}>
             Posted on {formatDate(job.createdAt)}
           </div>
@@ -305,10 +324,10 @@ const JobDetailsPage = () => {
               onClick={startApply}
               disabled={!isAuthenticated || user?.role !== 'applicant'}
               style={{
-                padding: '0.75rem 2rem',
-                backgroundColor: '#2563eb',
+                padding: '12px 20px',
+                backgroundColor: 'var(--primary-600)',
                 color: '#ffffff',
-                border: 'none',
+                border: '1px solid var(--primary-600)',
                 borderRadius: '8px',
                 fontWeight: '500',
                 cursor: (!isAuthenticated || user?.role !== 'applicant') ? 'not-allowed' : 'pointer',
@@ -317,12 +336,12 @@ const JobDetailsPage = () => {
               }}
               onMouseOver={(e) => {
                 if (isAuthenticated && user?.role === 'applicant') {
-                  e.currentTarget.style.backgroundColor = '#1d4ed8';
+                  e.currentTarget.style.backgroundColor = 'var(--primary-700)';
                 }
               }}
               onMouseOut={(e) => {
                 if (isAuthenticated && user?.role === 'applicant') {
-                  e.currentTarget.style.backgroundColor = '#2563eb';
+                  e.currentTarget.style.backgroundColor = 'var(--primary-600)';
                 }
               }}
             >
@@ -330,9 +349,9 @@ const JobDetailsPage = () => {
             </button>
           ) : (
             <div style={{
-              padding: '0.75rem 2rem',
-              backgroundColor: '#dcfce7',
-              color: '#15803d',
+              padding: '12px 20px',
+              backgroundColor: 'var(--success-100)',
+              color: 'var(--success-600)',
               borderRadius: '8px',
               fontWeight: '500'
             }}>
@@ -353,17 +372,19 @@ const JobDetailsPage = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '1rem',
+          padding: '16px',
           zIndex: 1000
         }}>
           <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            padding: '2rem',
+            backgroundColor: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            padding: '24px',
             width: '100%',
             maxWidth: '600px',
             maxHeight: '90vh',
-            overflow: 'auto'
+            overflow: 'auto',
+            boxShadow: 'var(--shadow-lg)'
           }}>
             <h2 style={{
               fontSize: '1.5rem',
@@ -379,9 +400,9 @@ const JobDetailsPage = () => {
                 htmlFor="coverLetter"
                 style={{
                   display: 'block',
-                  marginBottom: '0.5rem',
-                  color: '#374151',
-                  fontSize: '0.875rem',
+                  marginBottom: '8px',
+                  color: 'var(--text-muted)',
+                  fontSize: '0.95rem',
                   fontWeight: '500'
                 }}
               >
@@ -395,9 +416,9 @@ const JobDetailsPage = () => {
                 rows={8}
                 style={{
                   width: '100%',
-                  padding: '0.75rem',
+                  padding: '10px 12px',
                   borderRadius: '8px',
-                  border: '1px solid #d1d5db',
+                  border: '1px solid var(--border)',
                   resize: 'vertical',
                   minHeight: '120px'
                 }}
@@ -407,7 +428,7 @@ const JobDetailsPage = () => {
             <div style={{
               display: 'flex',
               justifyContent: 'flex-end',
-              gap: '1rem'
+              gap: '12px'
             }}>
               <button
                 onClick={() => {
@@ -415,16 +436,16 @@ const JobDetailsPage = () => {
                   setCoverLetter('');
                 }}
                 style={{
-                  padding: '0.75rem 1.5rem',
+                  padding: '10px 14px',
                   backgroundColor: 'transparent',
-                  color: '#6b7280',
-                  border: '1px solid #d1d5db',
+                  color: 'var(--text-muted)',
+                  border: '1px solid var(--border)',
                   borderRadius: '8px',
                   fontWeight: '500',
                   cursor: 'pointer'
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.backgroundColor = 'var(--surface-2)';
                 }}
                 onMouseOut={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
@@ -436,10 +457,10 @@ const JobDetailsPage = () => {
                 onClick={handleApply}
                 disabled={applyLoading}
                 style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#2563eb',
+                  padding: '10px 14px',
+                  backgroundColor: 'var(--primary-600)',
                   color: '#ffffff',
-                  border: 'none',
+                  border: '1px solid var(--primary-600)',
                   borderRadius: '8px',
                   fontWeight: '500',
                   cursor: applyLoading ? 'not-allowed' : 'pointer',
@@ -447,12 +468,12 @@ const JobDetailsPage = () => {
                 }}
                 onMouseOver={(e) => {
                   if (!applyLoading) {
-                    e.currentTarget.style.backgroundColor = '#1d4ed8';
+                    e.currentTarget.style.backgroundColor = 'var(--primary-700)';
                   }
                 }}
                 onMouseOut={(e) => {
                   if (!applyLoading) {
-                    e.currentTarget.style.backgroundColor = '#2563eb';
+                    e.currentTarget.style.backgroundColor = 'var(--primary-600)';
                   }
                 }}
               >

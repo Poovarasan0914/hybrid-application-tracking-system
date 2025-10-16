@@ -4,7 +4,7 @@ const LoadingSpinner = ({
   message = 'Loading...', 
   variant = 'circular', 
   fullScreen = false,
-  color = '#1976d2'
+  color = 'var(--primary-600)'
 }) => {
   const containerStyle = fullScreen 
     ? { minHeight: '100vh', paddingTop: 0, paddingBottom: 0 } 
@@ -23,7 +23,7 @@ const LoadingSpinner = ({
         <div style={{
           width: size,
           height: size,
-          border: `${Math.max(2, Math.floor(size/10))}px solid rgba(0,0,0,0.1)`,
+          border: `${Math.max(2, Math.floor(size/10))}px solid rgba(0,0,0,0.08)`,
           borderTopColor: color,
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
@@ -33,7 +33,7 @@ const LoadingSpinner = ({
           width: '100%',
           maxWidth: 200,
           height: 4,
-          background: 'linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12))',
+          background: 'linear-gradient(90deg, rgba(0,0,0,0.04), rgba(0,0,0,0.10))',
           position: 'relative',
           overflow: 'hidden',
           borderRadius: 2
@@ -50,7 +50,7 @@ const LoadingSpinner = ({
         </div>
       )}
       {message && (
-        <span style={{ color: '#666', fontSize: 12 }}>{message}</span>
+        <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>{message}</span>
       )}
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

@@ -16,8 +16,8 @@ const Header = () => {
 
   return (
     <header style={{
-      backgroundColor: '#ffffff',
-      borderBottom: '1px solid #e5e7eb',
+      backgroundColor: 'var(--surface)',
+      borderBottom: '1px solid var(--border)',
       position: 'sticky',
       top: 0,
       zIndex: 1000
@@ -25,7 +25,7 @@ const Header = () => {
       <nav style={{
         maxWidth: '1280px',
         margin: '0 auto',
-        padding: '0.75rem 1.25rem',
+        padding: '16px 24px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -35,15 +35,15 @@ const Header = () => {
           style={{
             fontSize: '1.5rem',
             fontWeight: '700',
-            color: '#1f2937',
+            color: 'var(--text)',
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            gap: '8px'
           }}
         >
           <span style={{
-            background: 'linear-gradient(45deg, #2563eb, #7c3aed)',
+            background: 'linear-gradient(45deg, var(--primary-600), #7c3aed)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             fontWeight: '800'
@@ -55,23 +55,23 @@ const Header = () => {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '1.5rem'
+          gap: '24px'
         }}>
           {!isAuthenticated ? (
             <>
               <NavLink to="/jobs">Jobs</NavLink>
-              <NavLink to="/login">Login</NavLink>
+              <NavLink to="/login" style={{ padding: '10px 16px' }}>Login</NavLink>
               <NavLink 
                 to="/register" 
                 style={{
-                  backgroundColor: '#2563eb',
+                  backgroundColor: 'var(--primary-600)',
                   color: '#ffffff',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
                   transition: 'background-color 0.3s ease'
                 }}
                 hoverStyle={{
-                  backgroundColor: '#1d4ed8'
+                  backgroundColor: 'var(--primary-700)'
                 }}
               >
                 Register
@@ -86,21 +86,21 @@ const Header = () => {
               <button
                 onClick={handleLogout}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#1f2937',
+                  backgroundColor: 'var(--primary-600)',
+                  border: '1px solid var(--primary-600)',
+                  color: '#ffffff',
                   cursor: 'pointer',
                   fontSize: '0.875rem',
                   fontWeight: '500',
-                  padding: '0.5rem',
-                  borderRadius: '6px',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
                   transition: 'background-color 0.3s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#f3f4f6';
+                  e.target.style.backgroundColor = 'var(--primary-700)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.backgroundColor = 'var(--primary-600)';
                 }}
               >
                 Logout
@@ -117,17 +117,17 @@ const Header = () => {
           position: 'absolute',
           top: '100%',
           right: '1rem',
-          backgroundColor: '#ffffff',
-          border: '1px solid #e5e7eb',
+          backgroundColor: 'var(--surface)',
+          border: '1px solid var(--border)',
           borderRadius: '8px',
-          padding: '1rem',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          padding: '16px',
+          boxShadow: 'var(--shadow-md)',
           marginTop: '0.5rem',
           zIndex: 1000,
         }}>
           <div style={{
             fontSize: '0.875rem',
-            color: '#4b5563',
+            color: 'var(--text-muted)',
           }}>
             <p style={{ margin: '0.25rem 0' }}>Ctrl+H - Home</p>
             <p style={{ margin: '0.25rem 0' }}>Ctrl+D - Dashboard</p>

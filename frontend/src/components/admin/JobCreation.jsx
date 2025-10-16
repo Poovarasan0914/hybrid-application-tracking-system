@@ -21,38 +21,41 @@ const JobCreation = ({ onJobCreated }) => {
 
   const commonStyles = {
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    fontSize: '14px'
+    fontSize: '15px',
+    color: 'var(--text)'
   };
 
   const inputStyle = {
     ...commonStyles,
     width: '100%',
     padding: '12px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    marginBottom: '16px'
+    border: '1px solid var(--border)',
+    borderRadius: '8px',
+    marginBottom: '16px',
+    background: 'var(--surface)'
   };
 
   const buttonStyle = {
     ...commonStyles,
-    padding: '12px 24px',
-    border: 'none',
-    borderRadius: '4px',
+    padding: '12px 20px',
+    border: '1px solid var(--border)',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontWeight: '500'
   };
 
   const primaryButton = {
     ...buttonStyle,
-    backgroundColor: '#1976d2',
+    backgroundColor: 'var(--primary-600)',
+    borderColor: 'var(--primary-600)',
     color: 'white'
   };
 
   const secondaryButton = {
     ...buttonStyle,
     backgroundColor: 'transparent',
-    color: '#1976d2',
-    border: '1px solid #1976d2'
+    color: 'var(--primary-600)',
+    border: '1px solid var(--primary-600)'
   };
 
   const handleInputChange = (field, value) => {
@@ -130,10 +133,10 @@ const JobCreation = ({ onJobCreated }) => {
   };
 
   return (
-    <div style={{ padding: '20px', ...commonStyles }}>
+    <div className="container" style={{ padding: '20px', ...commonStyles }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
         <span style={{ fontSize: '20px' }}>💼</span>
-        <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#333', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Create New Job Role</h2>
+        <h2 style={{ fontSize: '22px', fontWeight: '600', color: 'var(--text)', margin: 0, fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif' }}>Create New Job Role</h2>
         <span style={{ 
           padding: '4px 12px', 
           backgroundColor: formData.roleCategory === 'technical' ? '#1976d2' : '#9c27b0', 
@@ -146,18 +149,18 @@ const JobCreation = ({ onJobCreated }) => {
       </div>
 
       {message && (
-        <div style={{ padding: '12px', backgroundColor: '#d4edda', border: '1px solid #c3e6cb', borderRadius: '4px', color: '#155724', marginBottom: '16px', ...commonStyles }}>
+        <div style={{ padding: '12px', backgroundColor: 'var(--success-100)', border: '1px solid #bbf7d0', borderRadius: '8px', color: 'var(--success-600)', marginBottom: '16px', ...commonStyles }}>
           {message}
         </div>
       )}
       
       {error && (
-        <div style={{ padding: '12px', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '4px', color: '#721c24', marginBottom: '16px', ...commonStyles }}>
+        <div style={{ padding: '12px', backgroundColor: 'var(--danger-100)', border: '1px solid #fecaca', borderRadius: '8px', color: 'var(--danger-600)', marginBottom: '16px', ...commonStyles }}>
           {error}
         </div>
       )}
 
-      <div style={{ backgroundColor: 'white', border: '1px solid #e0e0e0', borderRadius: '8px', padding: '24px' }}>
+      <div style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', padding: '24px', boxShadow: 'var(--shadow-sm)' }}>
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
             <div>

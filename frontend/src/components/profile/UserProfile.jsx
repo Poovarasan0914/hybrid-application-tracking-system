@@ -119,8 +119,6 @@ const UserProfile = () => {
                   placeholder="Enter your last name"
                 />
               </div>
-            </div>
-            <div className="form-row">
               <div className="form-group">
                 <label htmlFor="phone">Phone Number</label>
                 <input
@@ -132,6 +130,8 @@ const UserProfile = () => {
                   placeholder="Enter your phone number"
                 />
               </div>
+            </div>
+            <div className="form-row">
               <div className="form-group">
                 <label htmlFor="experience">Years of Experience</label>
                 <input
@@ -142,7 +142,26 @@ const UserProfile = () => {
                   required
                   placeholder="Enter years of experience"
                 />
-      
+              </div>
+              <div className="form-group">
+                <label htmlFor="education">Education</label>
+                <input
+                  type="text"
+                  id="education"
+                  value={profile.education}
+                  onChange={(e) => handleInputChange('education', e.target.value)}
+                  placeholder="e.g., Bachelor's in Computer Science"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="resume">Resume URL</label>
+                <input
+                  type="url"
+                  id="resume"
+                  value={profile.resume}
+                  onChange={(e) => handleInputChange('resume', e.target.value)}
+                  placeholder="Link to your resume (Google Drive, LinkedIn, etc.)"
+                />
               </div>
             </div>
             <div className="form-group">
@@ -156,20 +175,7 @@ const UserProfile = () => {
               ></textarea>
             </div>
 
-            <h2 className="section-title">Education & Experience</h2>
-
-            <div className="form-group">
-              <label htmlFor="education">Education</label>
-              <input
-                type="text"
-                id="education"
-                value={profile.education}
-                onChange={(e) => handleInputChange('education', e.target.value)}
-                placeholder="e.g., Bachelor's in Computer Science"
-              />
-            </div>
-
-            <h2 className="section-title">Skills & Resume</h2>
+            <h2 className="section-title">Skills</h2>
 
             <div className="form-group">
               <label>Skills</label>
@@ -208,16 +214,7 @@ const UserProfile = () => {
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="resume">Resume URL</label>
-              <input
-                type="url"
-                id="resume"
-                value={profile.resume}
-                onChange={(e) => handleInputChange('resume', e.target.value)}
-                placeholder="Link to your resume (Google Drive, LinkedIn, etc.)"
-              />
-            </div>
+            
 
             <div className="form-submit">
               <button

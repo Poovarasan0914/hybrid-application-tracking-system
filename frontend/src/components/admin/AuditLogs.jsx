@@ -34,14 +34,14 @@ const AuditLogs = () => {
 
   const getActionStyle = (action) => {
     const map = {
-      'USER_LOGIN': { bg: '#d1e7dd', color: '#0f5132', border: '#badbcc' },
-      'USER_LOGOUT': { bg: '#eee', color: '#333', border: '#ddd' },
-      'USER_CREATE': { bg: '#e7f1ff', color: '#113a76', border: '#cfe2ff' },
+      'USER_LOGIN': { bg: 'var(--success-100)', color: 'var(--success-600)', border: '#bbf7d0' },
+      'USER_LOGOUT': { bg: 'var(--surface-2)', color: 'var(--text)', border: 'var(--border)' },
+      'USER_CREATE': { bg: 'var(--primary-100)', color: 'var(--primary-700)', border: 'var(--primary-200)' },
       'APPLICATION_SUBMIT': { bg: '#cff4fc', color: '#055160', border: '#b6effb' },
-      'APPLICATION_STATUS_CHANGE': { bg: '#fff3cd', color: '#664d03', border: '#ffecb5' },
-      'BOT_MIMIC_WORKFLOW': { bg: '#e7f1ff', color: '#113a76', border: '#cfe2ff' },
-      'JOB_CREATE': { bg: '#e7f1ff', color: '#113a76', border: '#cfe2ff' },
-      'JOB_DELETE': { bg: '#f8d7da', color: '#842029', border: '#f5c2c7' }
+      'APPLICATION_STATUS_CHANGE': { bg: 'var(--warning-100)', color: 'var(--warning-600)', border: '#fde68a' },
+      'BOT_MIMIC_WORKFLOW': { bg: 'var(--primary-100)', color: 'var(--primary-700)', border: 'var(--primary-200)' },
+      'JOB_CREATE': { bg: 'var(--primary-100)', color: 'var(--primary-700)', border: 'var(--primary-200)' },
+      'JOB_DELETE': { bg: 'var(--danger-100)', color: 'var(--danger-600)', border: '#fecaca' }
     };
     return map[action] || { bg: '#eee', color: '#333', border: '#ddd' };
   };
@@ -52,12 +52,12 @@ const AuditLogs = () => {
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
         <div>
-          <label htmlFor="filterAction" style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Action</label>
+          <label htmlFor="filterAction" style={{ display: 'block', marginBottom: 4, fontSize: 12, color: 'var(--text-muted)' }}>Action</label>
           <select
             id="filterAction"
             value={filters.action}
             onChange={(e) => setFilters({ ...filters, action: e.target.value, page: 1 })}
-            style={{ minWidth: 200, padding: '6px 8px', borderRadius: 6, border: '1px solid #ccc' }}
+            style={{ minWidth: 200, padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
           >
             <option value="">All Actions</option>
             <option value="USER_LOGIN">User Login</option>
@@ -69,12 +69,12 @@ const AuditLogs = () => {
           </select>
         </div>
         <div>
-          <label htmlFor="filterType" style={{ display: 'block', marginBottom: 4, fontSize: 12 }}>Resource Type</label>
+          <label htmlFor="filterType" style={{ display: 'block', marginBottom: 4, fontSize: 12, color: 'var(--text-muted)' }}>Resource Type</label>
           <select
             id="filterType"
             value={filters.resourceType}
             onChange={(e) => setFilters({ ...filters, resourceType: e.target.value, page: 1 })}
-            style={{ minWidth: 150, padding: '6px 8px', borderRadius: 6, border: '1px solid #ccc' }}
+            style={{ minWidth: 150, padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text)' }}
           >
             <option value="">All Types</option>
             <option value="user">User</option>
@@ -85,16 +85,16 @@ const AuditLogs = () => {
         </div>
       </div>
 
-      <div style={{ border: '1px solid #e0e0e0', borderRadius: 6, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+      <div style={{ border: '1px solid var(--border)', borderRadius: 6, overflow: 'hidden', background: 'var(--surface)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
           <thead>
-            <tr style={{ background: '#f7f7f7', textAlign: 'left' }}>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>Timestamp</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>User</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>Action</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>Resource</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>Description</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>IP Address</th>
+            <tr style={{ background: 'var(--surface-2)', textAlign: 'left' }}>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>Timestamp</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>User</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>Action</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>Resource</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>Description</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>IP Address</th>
             </tr>
           </thead>
           <tbody>
@@ -109,20 +109,20 @@ const AuditLogs = () => {
                 const style = getActionStyle(log.action);
                 return (
                   <tr key={log._id}>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>{formatDateTime(log.timestamp)}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>{log.userId?.username || 'System'}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>{formatDateTime(log.timestamp)}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>{log.userId?.username || 'System'}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>
                       <span style={{ background: style.bg, color: style.color, border: `1px solid ${style.border}`, padding: '2px 6px', borderRadius: 9999, fontSize: 12 }}>
                         {log.action.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>
-                      <span style={{ background: '#fff', color: '#333', border: '1px solid #ddd', padding: '2px 6px', borderRadius: 9999, fontSize: 12 }}>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>
+                      <span style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)', padding: '2px 6px', borderRadius: 9999, fontSize: 12 }}>
                         {log.resourceType}
                       </span>
                     </td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>{log.description}</td>
-                    <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>{log.ipAddress || 'N/A'}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>{log.description}</td>
+                    <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>{log.ipAddress || 'N/A'}</td>
                   </tr>
                 );
               })
@@ -144,9 +144,9 @@ const AuditLogs = () => {
                   style={{
                     padding: '6px 10px',
                     borderRadius: 6,
-                    border: '1px solid #ccc',
-                    background: active ? '#1976d2' : '#fff',
-                    color: active ? '#fff' : '#222',
+                    border: '1px solid var(--border)',
+                    background: active ? 'var(--primary-600)' : 'var(--surface)',
+                    color: active ? '#fff' : 'var(--text)',
                     cursor: 'pointer'
                   }}
                 >

@@ -16,35 +16,35 @@ const ApplicationList = () => {
 
   return (
     <div>
-      <h2 style={{ marginBottom: 8 }}>My Applications</h2>
-      <div style={{ border: '1px solid #e0e0e0', borderRadius: 6, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+      <h2 style={{ marginBottom: 8, fontSize: 20, color: 'var(--text)' }}>My Applications</h2>
+      <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden', background: 'var(--surface)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
           <thead>
-            <tr style={{ background: '#f7f7f7', textAlign: 'left' }}>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>Job Title</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>Department</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>Status</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0' }}>Applied Date</th>
-              <th style={{ padding: '10px 12px', borderBottom: '1px solid #e0e0e0', textAlign: 'right' }}>Actions</th>
+            <tr style={{ background: 'var(--surface-2)', textAlign: 'left' }}>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>Job Title</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>Department</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>Status</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>Applied Date</th>
+              <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)', textAlign: 'right' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {applications.map(a => (
               <tr key={a._id} style={{ cursor: 'pointer' }}>
-                <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>{a.jobId?.title}</td>
-                <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>{a.jobId?.department}</td>
-                <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}><ApplicationStatus status={a.status} /></td>
-                <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0' }}>{new Date(a.submittedAt).toLocaleDateString()}</td>
-                <td style={{ padding: '10px 12px', borderBottom: '1px solid #f0f0f0', textAlign: 'right' }}>
+                <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>{a.jobId?.title}</td>
+                <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>{a.jobId?.department}</td>
+                <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}><ApplicationStatus status={a.status} /></td>
+                <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)' }}>{new Date(a.submittedAt).toLocaleDateString()}</td>
+                <td style={{ padding: '10px 12px', borderBottom: '1px solid var(--border)', textAlign: 'right' }}>
                   <button 
                     onClick={() => navigate(`/applications/${a._id}/timeline`)}
                     title="View Timeline"
                     style={{
-                      padding: '4px 8px',
-                      fontSize: 12,
-                      borderRadius: 4,
-                      border: '1px solid #ccc',
-                      backgroundColor: '#fff',
+                      padding: '6px 10px',
+                      fontSize: 13,
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      backgroundColor: 'var(--surface)',
                       cursor: 'pointer'
                     }}
                   >
