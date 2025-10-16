@@ -2,6 +2,7 @@ const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const { validationResult } = require('express-validator');
 const { createAuditLog } = require('./auditController');
+const { auditLogin } = require('../middleware/auditMiddleware');
 
 // Get all users (admin only)
 exports.getAllUsers = async (req, res) => {
@@ -39,6 +40,18 @@ exports.register = async (req, res) => {
         const normalizedRole = (role === 'admin') ? 'admin' : 'applicant';
         user = new User({ username, email, password, role: normalizedRole });
         await user.save();
+
+        // Create audit log for user registration
+        await createAuditLog({
+            userId: user._id,
+            action: 'USER_CREATE',
+            resourceType: 'user',
+            resourceId: user._id,
+            description: `New ${normalizedRole} registered`,
+            details: { username, email, role: normalizedRole },
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent')
+        });
 
         // Generate token
         const token = generateToken(user._id, user.role);
@@ -90,6 +103,9 @@ exports.login = async (req, res) => {
 
         // Generate token
         const token = generateToken(user._id, user.role);
+
+        // Log successful login
+        await auditLogin(req, user, true);
 
         res.json({
             token,
@@ -171,8 +187,26 @@ exports.toggleUserActivation = async (req, res) => {
             return res.status(400).json({ message: 'Cannot deactivate own account' });
         }
 
+        const oldStatus = user.isActive;
         user.isActive = isActive;
         await user.save();
+
+        // Create audit log for user status change
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'USER_STATUS_CHANGE',
+            resourceType: 'user',
+            resourceId: user._id,
+            description: `User ${isActive ? 'activated' : 'deactivated'} by admin`,
+            details: {
+                targetUser: user.username,
+                oldStatus,
+                newStatus: isActive,
+                changedBy: req.user.username
+            },
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent')
+        });
 
         res.json(user);
     } catch (error) {

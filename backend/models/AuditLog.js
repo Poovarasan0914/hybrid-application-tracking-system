@@ -13,14 +13,22 @@ const AuditLogSchema = new mongoose.Schema({
             'USER_CREATE',
             'USER_UPDATE',
             'USER_LOGIN',
+            'USER_LOGOUT',
             'USER_STATUS_CHANGE',
             'JOB_CREATE',
             'JOB_UPDATE',
             'JOB_DELETE',
             'APPLICATION_SUBMIT',
             'APPLICATION_STATUS_CHANGE',
-            'APPLICATION_NOTE_ADD',
-            'ADMIN_ACTION'
+            'APPLICATION_NOTE_ADDED',
+            'APPLICATION_VIEW',
+            'BOT_MIMIC_WORKFLOW',
+            'BOT_MIMIC_TRIGGER',
+            'BOT_MIMIC_TOGGLE',
+            'BOT_AUTO_PROCESS',
+            'ADMIN_ACTION',
+            'DASHBOARD_ACCESS',
+            'SYSTEM_ACTION'
         ]
     },
     description: {
@@ -43,7 +51,7 @@ const AuditLogSchema = new mongoose.Schema({
     },
     resourceType: {
         type: String,
-        enum: ['user', 'job', 'application'],
+        enum: ['user', 'job', 'application', 'system'],
         required: true
     },
     resourceId: {

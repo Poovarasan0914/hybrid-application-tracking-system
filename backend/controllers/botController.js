@@ -45,10 +45,18 @@ exports.getDashboard = async (req, res) => {
         // Create audit log for bot dashboard access
         await createAuditLog({
             userId: req.user._id,
-            action: 'ADMIN_ACTION',
-            resourceType: 'user',
+            action: 'DASHBOARD_ACCESS',
+            resourceType: 'system',
             resourceId: req.user._id,
-            description: 'Bot accessed dashboard data'
+            description: 'Bot accessed dashboard data',
+            details: {
+                role: 'bot',
+                username: req.user.username,
+                pendingCount: technicalApplications.length,
+                activeJobsCount: activeJobs.length
+            },
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent')
         });
 
         res.json({

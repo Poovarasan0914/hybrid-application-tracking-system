@@ -139,7 +139,16 @@ exports.createJob = async (req, res) => {
             action: 'JOB_CREATE',
             resourceType: 'job',
             resourceId: job._id,
-            description: `Job created: ${job.title}`
+            description: `Job created: ${job.title}`,
+            details: {
+                jobTitle: job.title,
+                department: job.department,
+                roleCategory: job.roleCategory,
+                type: job.type,
+                createdBy: req.user.username
+            },
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent')
         });
 
         res.status(201).json(job);
@@ -162,12 +171,38 @@ exports.updateJob = async (req, res) => {
             return res.status(404).json({ message: 'Job not found' });
         }
 
+        // Store old values for audit
+        const oldValues = {
+            title: job.title,
+            department: job.department,
+            roleCategory: job.roleCategory,
+            isActive: job.isActive
+        };
+
         // Update fields
         Object.keys(req.body).forEach(key => {
             job[key] = req.body[key];
         });
 
         await job.save();
+
+        // Create audit log
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'JOB_UPDATE',
+            resourceType: 'job',
+            resourceId: job._id,
+            description: `Job updated: ${job.title}`,
+            details: {
+                jobTitle: job.title,
+                oldValues,
+                newValues: req.body,
+                updatedBy: req.user.username
+            },
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent')
+        });
+
         res.json(job);
     } catch (error) {
         console.error('Update job error:', error);
@@ -191,7 +226,15 @@ exports.deleteJob = async (req, res) => {
             action: 'JOB_DELETE',
             resourceType: 'job',
             resourceId: job._id,
-            description: `Job deleted: ${job.title}`
+            description: `Job deleted: ${job.title}`,
+            details: {
+                jobTitle: job.title,
+                department: job.department,
+                roleCategory: job.roleCategory,
+                deletedBy: req.user.username
+            },
+            ipAddress: req.ip,
+            userAgent: req.get('User-Agent')
         });
 
         res.json({ message: 'Job deleted successfully' });
