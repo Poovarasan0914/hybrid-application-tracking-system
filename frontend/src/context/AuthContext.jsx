@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
+import tokenManager from '../utils/tokenManager';
 
 // Auth context for managing authentication state
 const AuthContext = createContext();
@@ -62,22 +63,17 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing token on mount
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const user = localStorage.getItem('user');
+    const token = tokenManager.getToken();
+    const user = tokenManager.getUser();
     
-    if (token && user) {
-      try {
-        const parsedUser = JSON.parse(user);
-        dispatch({
-          type: 'LOGIN_SUCCESS',
-          payload: { user: parsedUser, token }
-        });
-      } catch (error) {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-        dispatch({ type: 'SET_LOADING', payload: false });
-      }
+    if (token && user && tokenManager.isTokenValid()) {
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user, token }
+      });
     } else {
+      // Clear invalid data
+      tokenManager.clearAuth();
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   }, []);
@@ -86,7 +82,6 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      // This will be implemented with actual API call
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/login`, {
         method: 'POST',
         headers: {
@@ -95,15 +90,15 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
       
       // Store token and user data
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      tokenManager.setToken(data.token);
+      tokenManager.setUser(data.user);
       
       dispatch({
         type: 'LOGIN_SUCCESS',
@@ -140,8 +135,8 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       
       // Store token and user data
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      tokenManager.setToken(data.token);
+      tokenManager.setUser(data.user);
       
       dispatch({
         type: 'LOGIN_SUCCESS',
@@ -160,8 +155,7 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+    tokenManager.clearAuth();
     dispatch({ type: 'LOGOUT' });
   };
 
