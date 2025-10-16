@@ -44,6 +44,14 @@ exports.isAdminOrBot = (req, res, next) => {
     res.status(403).json({ message: 'Admin or bot access required' });
 };
 
+// Check bot role
+exports.isBot = (req, res, next) => {
+    if (req.user && req.user.role === 'bot') {
+        return next();
+    }
+    res.status(403).json({ message: 'Bot access required' });
+};
+
 // Generate JWT token
 exports.generateToken = (userId, role) => {
     return jwt.sign(
