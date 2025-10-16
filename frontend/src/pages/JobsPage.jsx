@@ -1,4 +1,3 @@
-import { Container, Typography, Box, Grid, Pagination, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import JobCard from '../components/jobs/JobCard';
 import JobFilters from '../components/jobs/JobFilters';
@@ -20,7 +19,6 @@ const JobsPage = () => {
       const params = { page, limit: pagination.limit };
       if (filters.type) params.type = filters.type;
       if (filters.department) params.department = filters.department;
-      // Simple client-side search over results after fetch (backend has no search param)
       const data = await jobService.getActiveJobs(params);
       const sourceJobs = data.jobs || [];
       const filtered = filters.search
@@ -40,7 +38,6 @@ const JobsPage = () => {
 
   useEffect(() => {
     fetchJobs(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleReset = () => {
@@ -52,44 +49,109 @@ const JobsPage = () => {
     fetchJobs(1);
   };
 
-  const handlePageChange = (_e, page) => {
+  const handlePageChange = (page) => {
     fetchJobs(page);
   };
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
+    <div style={{
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: '2rem 20px'
+    }}>
+      <div style={{
+        marginBottom: '2rem'
+      }}>
+        <h1 style={{
+          fontSize: '2.5rem',
+          color: '#1f2937',
+          marginBottom: '2rem',
+          fontWeight: '600'
+        }}>
           Available Jobs
-        </Typography>
+        </h1>
 
-        <JobFilters filters={filters} onChange={setFilters} onReset={handleReset} onSearch={handleSearch} />
+        <JobFilters 
+          filters={filters} 
+          onChange={setFilters} 
+          onReset={handleReset} 
+          onSearch={handleSearch} 
+        />
 
         {loading && <LoadingSpinner fullScreen={false} />}
         {error && <ErrorMessage error={error} onRetry={() => fetchJobs(pagination.page)} />}
 
         {!loading && !error && (
           <>
-            <Grid container spacing={2} sx={{ mt: 1 }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '1.5rem',
+              marginTop: '2rem'
+            }}>
               {jobs.map(job => (
-                <Grid item xs={12} sm={6} md={4} key={job._id}>
-                  <JobCard job={job} />
-                </Grid>
+                <JobCard key={job._id} job={job} />
               ))}
-            </Grid>
+            </div>
 
-            <Stack alignItems="center" sx={{ mt: 3 }}>
-              <Pagination 
-                count={pagination.totalPages || 1}
-                page={pagination.page || 1}
-                onChange={handlePageChange}
-                color="primary"
-              />
-            </Stack>
+            {jobs.length === 0 && (
+              <div style={{
+                textAlign: 'center',
+                padding: '3rem 0',
+                color: '#6b7280'
+              }}>
+                <p style={{ fontSize: '1.125rem' }}>No jobs found matching your criteria</p>
+              </div>
+            )}
+
+            {jobs.length > 0 && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginTop: '2rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  gap: '0.5rem'
+                }}>
+                  {[...Array(pagination.totalPages)].map((_, idx) => (
+                    <button
+                      key={idx + 1}
+                      onClick={() => handlePageChange(idx + 1)}
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: idx + 1 === pagination.page ? 'none' : '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        backgroundColor: idx + 1 === pagination.page ? '#2563eb' : '#ffffff',
+                        color: idx + 1 === pagination.page ? '#ffffff' : '#374151',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseOver={(e) => {
+                        if (idx + 1 !== pagination.page) {
+                          e.currentTarget.style.backgroundColor = '#f3f4f6';
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (idx + 1 !== pagination.page) {
+                          e.currentTarget.style.backgroundColor = '#ffffff';
+                        }
+                      }}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
-      </Box>
-    </Container>
+      </div>
+    </div>
   );
 };
 

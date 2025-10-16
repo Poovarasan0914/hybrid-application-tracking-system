@@ -1,4 +1,3 @@
-import { Container, Typography, Box, Grid, Paper, Button, Alert, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { botService } from '../services/botService';
 import PendingApplications from '../components/bot/PendingApplications';
@@ -22,7 +21,6 @@ const BotPage = () => {
         applicationStats: res.applicationStats || []
       });
       
-      // Load Bot Mimic stats
       const mimicRes = await botService.getBotMimicStats();
       setMimicStats(mimicRes);
     } catch {}
@@ -73,7 +71,6 @@ const BotPage = () => {
   useEffect(() => {
     load();
     
-    // Auto-process every 30 seconds when in auto mode
     const interval = setInterval(() => {
       if (autoMode && !processing) {
         processApplications();
@@ -84,108 +81,334 @@ const BotPage = () => {
   }, [autoMode, processing]);
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-          <Typography variant="h4" component="h1">
-            Bot Dashboard - Technical Roles Only
-          </Typography>
-          <Stack direction="row" spacing={1}>
-            <Button 
-              variant={autoMode ? "contained" : "outlined"}
+    <div style={{
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: '2rem 20px'
+    }}>
+      <div style={{
+        marginBottom: '2rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '2rem',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}>
+          <h1 style={{
+            fontSize: '2rem',
+            color: '#1f2937',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <span>🤖</span> Bot Dashboard
+            <span style={{
+              fontSize: '1rem',
+              color: '#6b7280',
+              fontWeight: '400',
+              marginLeft: '0.5rem'
+            }}>
+              Technical Roles Only
+            </span>
+          </h1>
+
+          <div style={{
+            display: 'flex',
+            gap: '1rem'
+          }}>
+            <button
               onClick={() => setAutoMode(!autoMode)}
-              color={autoMode ? "success" : "default"}
-              size="small"
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: autoMode ? '#059669' : 'transparent',
+                color: autoMode ? '#ffffff' : '#374151',
+                border: autoMode ? 'none' : '1px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseOver={(e) => {
+                if (autoMode) {
+                  e.currentTarget.style.backgroundColor = '#047857';
+                } else {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (autoMode) {
+                  e.currentTarget.style.backgroundColor = '#059669';
+                } else {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
             >
               {autoMode ? '🤖 Auto Mode ON' : '⏸️ Auto Mode OFF'}
-            </Button>
-            <Button 
-              variant="contained" 
+            </button>
+            <button 
               onClick={handleManualProcess}
               disabled={processing}
-              color="primary"
-              size="small"
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: processing ? '#e5e7eb' : '#2563eb',
+                color: processing ? '#9ca3af' : '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                cursor: processing ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onMouseOver={(e) => {
+                if (!processing) {
+                  e.currentTarget.style.backgroundColor = '#1d4ed8';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (!processing) {
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                }
+              }}
             >
               {processing ? 'Processing...' : 'Process Now'}
-            </Button>
-            <Button 
-              variant="contained" 
+            </button>
+            <button 
               onClick={handleBotMimicTrigger}
               disabled={mimicProcessing}
-              color="secondary"
-              size="small"
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: mimicProcessing ? '#e5e7eb' : '#7c3aed',
+                color: mimicProcessing ? '#9ca3af' : '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                cursor: mimicProcessing ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onMouseOver={(e) => {
+                if (!mimicProcessing) {
+                  e.currentTarget.style.backgroundColor = '#6d28d9';
+                }
+              }}
+              onMouseOut={(e) => {
+                if (!mimicProcessing) {
+                  e.currentTarget.style.backgroundColor = '#7c3aed';
+                }
+              }}
             >
               {mimicProcessing ? 'Mimicking...' : '🎯 Bot Mimic'}
-            </Button>
+            </button>
             {mimicStats && (
-              <Button 
-                variant={mimicStats.isRunning ? "contained" : "outlined"}
+              <button 
                 onClick={() => handleToggleBotMimic(mimicStats.isRunning ? 'stop' : 'start')}
-                color={mimicStats.isRunning ? "error" : "success"}
-                size="small"
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: mimicStats.isRunning ? '#dc2626' : '#059669',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = mimicStats.isRunning ? '#b91c1c' : '#047857';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = mimicStats.isRunning ? '#dc2626' : '#059669';
+                }}
               >
                 {mimicStats.isRunning ? '⏹️ Stop' : '▶️ Start'}
-              </Button>
+              </button>
             )}
-          </Stack>
-        </Stack>
+          </div>
+        </div>
 
         {message && (
-          <Alert severity="success" sx={{ mb: 2 }} onClose={() => setMessage('')}>
-            {message}
-          </Alert>
+          <div style={{
+            padding: '1rem',
+            backgroundColor: '#dcfce7',
+            border: '1px solid #22c55e',
+            borderRadius: '8px',
+            color: '#15803d',
+            marginBottom: '1.5rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span>{message}</span>
+            <button 
+              onClick={() => setMessage('')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#15803d',
+                cursor: 'pointer',
+                fontSize: '1.2rem'
+              }}
+            >
+              ×
+            </button>
+          </div>
         )}
 
-        <Stack spacing={2} sx={{ mb: 3 }}>
-          <Alert severity={autoMode ? "success" : "warning"}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{
+            padding: '1rem',
+            backgroundColor: autoMode ? '#dcfce7' : '#fef3c7',
+            border: `1px solid ${autoMode ? '#22c55e' : '#d97706'}`,
+            borderRadius: '8px',
+            color: autoMode ? '#15803d' : '#92400e'
+          }}>
             <strong>Bot Status:</strong> {autoMode ? '🤖 Automatically processing technical applications every 30 seconds' : '⏸️ Auto-processing paused - use manual processing'}
-          </Alert>
-          <Alert severity="info">
+          </div>
+          <div style={{
+            padding: '1rem',
+            backgroundColor: '#e0f2fe',
+            border: '1px solid #0284c7',
+            borderRadius: '8px',
+            color: '#0369a1'
+          }}>
             <strong>Bot Mimic:</strong> {mimicStats?.isRunning ? '🎯 Human-like workflow processing active (Applied → Reviewed → Interview → Offer)' : '⏸️ Bot Mimic paused'}
             {mimicStats && ` | Total Technical Apps: ${mimicStats.totalTechnicalApplications}`}
-          </Alert>
-        </Stack>
+          </div>
+        </div>
 
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Technical Application Stats</Typography>
-              <BotStats stats={data.applicationStats} />
-            </Paper>
-          </Grid>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '1.5rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{
+              fontSize: '1.25rem',
+              color: '#1f2937',
+              marginBottom: '1.5rem',
+              fontWeight: '600'
+            }}>
+              Technical Application Stats
+            </h2>
+            <BotStats stats={data.applicationStats} />
+          </div>
           
-          <Grid item xs={12} md={6}>
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Bot Mimic Workflow Stats</Typography>
-              {mimicStats?.stageDistribution && (
-                <Stack spacing={1}>
-                  {Object.entries(mimicStats.stageDistribution).map(([stage, count]) => (
-                    <Stack key={stage} direction="row" justifyContent="space-between">
-                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>{stage}:</Typography>
-                      <Typography variant="body2" fontWeight="bold">{count}</Typography>
-                    </Stack>
-                  ))}
-                </Stack>
-              )}
-            </Paper>
-          </Grid>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{
+              fontSize: '1.25rem',
+              color: '#1f2937',
+              marginBottom: '1.5rem',
+              fontWeight: '600'
+            }}>
+              Bot Mimic Workflow Stats
+            </h2>
+            {mimicStats?.stageDistribution && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem'
+              }}>
+                {Object.entries(mimicStats.stageDistribution).map(([stage, count]) => (
+                  <div 
+                    key={stage}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.5rem',
+                      backgroundColor: '#f3f4f6',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <span style={{
+                      color: '#4b5563',
+                      fontSize: '0.875rem',
+                      textTransform: 'capitalize'
+                    }}>
+                      {stage}:
+                    </span>
+                    <span style={{
+                      color: '#1f2937',
+                      fontSize: '0.875rem',
+                      fontWeight: '600'
+                    }}>
+                      {count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-          <Grid item xs={12} md={6}>
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Pending Technical Applications</Typography>
-              <PendingApplications applications={data.pendingApplications} onOpen={() => {}} />
-            </Paper>
-          </Grid>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{
+              fontSize: '1.25rem',
+              color: '#1f2937',
+              marginBottom: '1.5rem',
+              fontWeight: '600'
+            }}>
+              Pending Technical Applications
+            </h2>
+            <PendingApplications 
+              applications={data.pendingApplications} 
+              onOpen={() => {}} 
+            />
+          </div>
 
-          <Grid item xs={12} md={6}>
-            <Paper variant="outlined" sx={{ p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Active Technical Jobs</Typography>
-              <ActiveJobs jobs={data.activeJobs} />
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-    </Container>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{
+              fontSize: '1.25rem',
+              color: '#1f2937',
+              marginBottom: '1.5rem',
+              fontWeight: '600'
+            }}>
+              Active Technical Jobs
+            </h2>
+            <ActiveJobs jobs={data.activeJobs} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

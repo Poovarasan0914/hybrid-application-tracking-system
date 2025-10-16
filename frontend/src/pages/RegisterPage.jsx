@@ -1,4 +1,3 @@
-import { Container, Typography, Box, TextField, Button, Checkbox, FormControlLabel, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { registerSchema } from '../utils/validators';
@@ -33,96 +32,295 @@ const RegisterPage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ py: 8 }}>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
+    <div style={{
+      maxWidth: '500px',
+      margin: '0 auto',
+      padding: '40px 20px'
+    }}>
+      <div style={{
+        backgroundColor: '#ffffff',
+        borderRadius: '16px',
+        padding: '40px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}>
+        <h1 style={{
+          fontSize: '2rem',
+          color: '#1f2937',
+          textAlign: 'center',
+          marginBottom: '2rem',
+          fontWeight: '600'
+        }}>
           Create your account
-        </Typography>
+        </h1>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }} onClose={clearError}>
-            {error}
-          </Alert>
+          <div style={{
+            padding: '12px 16px',
+            backgroundColor: '#fee2e2',
+            border: '1px solid #ef4444',
+            borderRadius: '8px',
+            color: '#dc2626',
+            marginBottom: '1rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span>{error}</span>
+            <button 
+              onClick={clearError}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#dc2626',
+                cursor: 'pointer',
+                fontSize: '1.2rem'
+              }}
+            >
+              ×
+            </button>
+          </div>
         )}
 
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ mt: 1 }}>
-          <TextField
-            label="Username"
-            fullWidth
-            margin="normal"
-            {...register('username')}
-            error={!!errors.username}
-            helperText={errors.username?.message}
-            autoComplete="username"
-          />
-
-          <TextField
-            label="Email"
-            fullWidth
-            margin="normal"
-            {...register('email')}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-            autoComplete="email"
-          />
-
-          <TextField
-            label="Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            {...register('password')}
-            error={!!errors.password}
-            helperText={errors.password?.message}
-            autoComplete="new-password"
-          />
-
-          <TextField
-            label="Confirm Password"
-            type="password"
-            fullWidth
-            margin="normal"
-            {...register('confirmPassword')}
-            error={!!errors.confirmPassword}
-            helperText={errors.confirmPassword?.message}
-            autoComplete="new-password"
-          />
-
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="role-label">Role</InputLabel>
-            <Select
-              labelId="role-label"
-              label="Role"
-              defaultValue="applicant"
-              {...register('role')}
-              error={!!errors.role}
+        <form onSubmit={handleSubmit(onSubmit)} style={{ marginTop: '1.5rem' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label 
+              style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                color: '#374151',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
             >
-              <MenuItem value="applicant">Applicant</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-            </Select>
-          </FormControl>
+              Username
+            </label>
+            <input
+              type="text"
+              {...register('username')}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                border: errors.username ? '2px solid #ef4444' : '1px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              placeholder="Choose a username"
+              autoComplete="username"
+            />
+            {errors.username && (
+              <span style={{ 
+                color: '#ef4444', 
+                fontSize: '0.75rem',
+                marginTop: '0.25rem',
+                display: 'block'
+              }}>
+                {errors.username.message}
+              </span>
+            )}
+          </div>
 
-          <FormControlLabel
-            control={<Checkbox color="primary" {...register('rememberMe')} />}
-            label="Keep me signed in"
-          />
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label 
+              style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                color: '#374151',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              {...register('email')}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                border: errors.email ? '2px solid #ef4444' : '1px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              placeholder="Enter your email"
+              autoComplete="email"
+            />
+            {errors.email && (
+              <span style={{ 
+                color: '#ef4444', 
+                fontSize: '0.75rem',
+                marginTop: '0.25rem',
+                display: 'block'
+              }}>
+                {errors.email.message}
+              </span>
+            )}
+          </div>
 
-          <Button
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label 
+              style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                color: '#374151',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              {...register('password')}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                border: errors.password ? '2px solid #ef4444' : '1px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              placeholder="Create a password"
+              autoComplete="new-password"
+            />
+            {errors.password && (
+              <span style={{ 
+                color: '#ef4444', 
+                fontSize: '0.75rem',
+                marginTop: '0.25rem',
+                display: 'block'
+              }}>
+                {errors.password.message}
+              </span>
+            )}
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label 
+              style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                color: '#374151',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              {...register('confirmPassword')}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                border: errors.confirmPassword ? '2px solid #ef4444' : '1px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+              }}
+              placeholder="Confirm your password"
+              autoComplete="new-password"
+            />
+            {errors.confirmPassword && (
+              <span style={{ 
+                color: '#ef4444', 
+                fontSize: '0.75rem',
+                marginTop: '0.25rem',
+                display: 'block'
+              }}>
+                {errors.confirmPassword.message}
+              </span>
+            )}
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label 
+              style={{
+                display: 'block',
+                marginBottom: '0.5rem',
+                color: '#374151',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              Role
+            </label>
+            <select
+              {...register('role')}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                border: errors.role ? '2px solid #ef4444' : '1px solid #d1d5db',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+                backgroundColor: '#ffffff',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="applicant">Applicant</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <button
             type="submit"
-            fullWidth
-            variant="contained"
             disabled={loading}
-            sx={{ mt: 3, mb: 2 }}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '500',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? '0.7' : '1',
+              transition: 'all 0.2s',
+              marginBottom: '1rem'
+            }}
+            onMouseOver={(e) => {
+              if (!loading) {
+                e.currentTarget.style.backgroundColor = '#1d4ed8';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (!loading) {
+                e.currentTarget.style.backgroundColor = '#2563eb';
+              }
+            }}
           >
-            {loading ? 'Creating account...' : 'Create account'}
-          </Button>
+            {loading ? 'Creating account...' : 'Create Account'}
+          </button>
 
-          <Typography variant="body2" align="center">
-            Already have an account? <Link to="/login">Sign in</Link>
-          </Typography>
-        </Box>
-      </Box>
-    </Container>
+          <p style={{
+            textAlign: 'center',
+            color: '#6b7280',
+            fontSize: '0.875rem'
+          }}>
+            Already have an account? {' '}
+            <Link 
+              to="/login"
+              style={{
+                color: '#2563eb',
+                textDecoration: 'none',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.textDecoration = 'underline';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.textDecoration = 'none';
+              }}
+            >
+              Sign in
+            </Link>
+          </p>
+        </form>
+      </div>
+    </div>
   );
 };
 
