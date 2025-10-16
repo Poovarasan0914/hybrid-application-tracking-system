@@ -18,6 +18,7 @@ const jobValidation = [
     body('department').notEmpty().withMessage('Department is required'),
     body('description').notEmpty().withMessage('Job description is required'),
     body('requirements').isArray().withMessage('Requirements must be an array'),
+    body('roleCategory').isIn(['technical', 'non-technical']).withMessage('Role category must be technical or non-technical'),
     body('type').isIn(['full-time', 'part-time', 'contract', 'internship']).withMessage('Invalid job type'),
     body('location').notEmpty().withMessage('Location is required'),
     body('salary.min').isNumeric().withMessage('Minimum salary must be a number'),

@@ -106,7 +106,11 @@ const JobCreation = ({ onJobCreated }) => {
       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
         <Work />
         <Typography variant="h6">Create New Job Role</Typography>
-        <Chip label="Non-Technical" color="secondary" size="small" />
+        <Chip 
+          label={formData.roleCategory === 'technical' ? 'Technical' : 'Non-Technical'} 
+          color={formData.roleCategory === 'technical' ? 'primary' : 'secondary'} 
+          size="small" 
+        />
       </Stack>
 
       {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
@@ -143,6 +147,19 @@ const JobCreation = ({ onJobCreated }) => {
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 required
               />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                select
+                fullWidth
+                label="Role Category"
+                value={formData.roleCategory}
+                onChange={(e) => handleInputChange('roleCategory', e.target.value)}
+                required
+              >
+                <MenuItem value="technical">Technical</MenuItem>
+                <MenuItem value="non-technical">Non-Technical</MenuItem>
+              </TextField>
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
