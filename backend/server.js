@@ -11,6 +11,7 @@ const applicationRoutes = require('./routes/applicationRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 const botRoutes = require('./routes/botRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const botAutomation = require('./services/botAutomation');
 
 const app = express();
 
@@ -55,4 +56,7 @@ app.use((err, req, res, next) => {
 // Start the server
 app.listen(config.port, () => {
     console.log(`Server is running on port ${config.port}`);
+    
+    // Start bot automation service
+    botAutomation.start();
 });

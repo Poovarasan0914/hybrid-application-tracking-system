@@ -5,6 +5,7 @@ const {
     submitApplication,
     getMyApplications,
     getAllApplications,
+    getNonTechnicalApplications,
     getApplicationById,
     getApplicationTimeline,
     updateApplicationStatus,
@@ -43,6 +44,7 @@ router.post('/applications', authenticate, (req, res, next) => {
 }, applicationValidation, submitApplication);
 router.get('/applications/my-applications', authenticate, getMyApplications);
 router.get('/applications/all', authenticate, isAdmin, getAllApplications);
+router.get('/applications/non-technical', authenticate, isAdmin, getNonTechnicalApplications);
 router.get('/applications/:id', authenticate, getApplicationById);
 router.get('/applications/:id/timeline', authenticate, getApplicationTimeline);
 router.put('/applications/:id/status', authenticate, isAdminOrBot, statusValidation, updateApplicationStatus);

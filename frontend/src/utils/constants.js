@@ -20,6 +20,11 @@ export const JOB_TYPES = {
   INTERNSHIP: 'internship'
 };
 
+export const ROLE_CATEGORIES = {
+  TECHNICAL: 'technical',
+  NON_TECHNICAL: 'non-technical'
+};
+
 export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
@@ -75,6 +80,7 @@ export default {
   ROLES,
   APPLICATION_STATUS,
   JOB_TYPES,
+  ROLE_CATEGORIES,
   API_ENDPOINTS,
   ROUTES,
   VALIDATION_RULES

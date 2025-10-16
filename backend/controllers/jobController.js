@@ -36,16 +36,13 @@ exports.getActiveJobs = async (req, res) => {
     }
 };
 
-// Get technical jobs only
+// Get technical jobs only (using roleCategory)
 exports.getTechnicalJobs = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
         const query = { 
             isActive: true,
-            $or: [
-                { department: { $regex: /engineering|technical|development|software|programming/i } },
-                { title: { $regex: /developer|engineer|programmer|technical/i } }
-            ]
+            roleCategory: 'technical'
         };
 
         const skip = (page - 1) * limit;
@@ -62,7 +59,8 @@ exports.getTechnicalJobs = async (req, res) => {
             jobs,
             currentPage: parseInt(page),
             totalPages: Math.ceil(total / limit),
-            totalJobs: total
+            totalJobs: total,
+            roleType: 'technical'
         });
     } catch (error) {
         console.error('Get technical jobs error:', error);
@@ -70,16 +68,13 @@ exports.getTechnicalJobs = async (req, res) => {
     }
 };
 
-// Get non-technical jobs only
+// Get non-technical jobs only (using roleCategory)
 exports.getNonTechnicalJobs = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
         const query = { 
             isActive: true,
-            $and: [
-                { department: { $not: { $regex: /engineering|technical|development|software|programming/i } } },
-                { title: { $not: { $regex: /developer|engineer|programmer|technical/i } } }
-            ]
+            roleCategory: 'non-technical'
         };
 
         const skip = (page - 1) * limit;
@@ -96,7 +91,8 @@ exports.getNonTechnicalJobs = async (req, res) => {
             jobs,
             currentPage: parseInt(page),
             totalPages: Math.ceil(total / limit),
-            totalJobs: total
+            totalJobs: total,
+            roleType: 'non-technical'
         });
     } catch (error) {
         console.error('Get non-technical jobs error:', error);

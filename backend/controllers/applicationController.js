@@ -75,10 +75,10 @@ exports.getMyApplications = async (req, res) => {
     }
 };
 
-// Get all applications (admin only)
+// Get all applications (admin only) - filtered by role type
 exports.getAllApplications = async (req, res) => {
     try {
-        const { status, page = 1, limit = 10 } = req.query;
+        const { status, roleType, page = 1, limit = 10 } = req.query;
         const query = {};
 
         // Add status filter if provided
@@ -91,24 +91,75 @@ exports.getAllApplications = async (req, res) => {
 
         const applications = await Application.find(query)
             .populate([
-                { path: 'jobId', select: 'title department' },
+                { path: 'jobId', select: 'title department roleCategory' },
                 { path: 'applicantId', select: 'username email' }
             ])
             .sort({ submittedAt: -1 })
             .skip(skip)
             .limit(parseInt(limit));
 
+        // Filter by role type if specified
+        let filteredApplications = applications;
+        if (roleType) {
+            filteredApplications = applications.filter(app => 
+                app.jobId && app.jobId.roleCategory === roleType
+            );
+        }
+
         // Get total count for pagination
         const total = await Application.countDocuments(query);
 
         res.json({
-            applications,
+            applications: filteredApplications,
             currentPage: parseInt(page),
             totalPages: Math.ceil(total / limit),
-            totalApplications: total
+            totalApplications: total,
+            roleFilter: roleType || 'all'
         });
     } catch (error) {
         console.error('Get all applications error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Get non-technical applications for admin management
+exports.getNonTechnicalApplications = async (req, res) => {
+    try {
+        const { status, page = 1, limit = 10 } = req.query;
+        const query = {};
+
+        if (status) query.status = status;
+
+        const skip = (page - 1) * limit;
+
+        const applications = await Application.find(query)
+            .populate([
+                { path: 'jobId', select: 'title department roleCategory' },
+                { path: 'applicantId', select: 'username email' }
+            ])
+            .sort({ submittedAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        // Filter for non-technical roles only
+        const nonTechnicalApplications = applications.filter(app => 
+            app.jobId && app.jobId.roleCategory === 'non-technical'
+        );
+
+        const totalNonTechnical = await Application.countDocuments({})
+            .then(async () => {
+                const allApps = await Application.find({}).populate('jobId', 'roleCategory');
+                return allApps.filter(app => app.jobId && app.jobId.roleCategory === 'non-technical').length;
+            });
+
+        res.json({
+            applications: nonTechnicalApplications,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(totalNonTechnical / limit),
+            totalApplications: totalNonTechnical
+        });
+    } catch (error) {
+        console.error('Get non-technical applications error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -140,7 +191,7 @@ exports.getApplicationById = async (req, res) => {
     }
 };
 
-// Update application status (admin/bot only)
+// Update application status (admin for non-technical, bot for technical)
 exports.updateApplicationStatus = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -149,23 +200,51 @@ exports.updateApplicationStatus = async (req, res) => {
         }
 
         const { status } = req.body;
-        const application = await Application.findById(req.params.id);
+        const application = await Application.findById(req.params.id)
+            .populate('jobId', 'roleCategory title');
 
         if (!application) {
             return res.status(404).json({ message: 'Application not found' });
+        }
+
+        // Check role-based permissions
+        const isAdmin = req.user.role === 'admin';
+        const isBot = req.user.role === 'bot';
+        const isTechnicalRole = application.jobId && application.jobId.roleCategory === 'technical';
+        
+        // Admin can only update non-technical roles
+        if (isAdmin && isTechnicalRole) {
+            return res.status(403).json({ 
+                message: 'Technical roles are handled automatically by the bot system' 
+            });
+        }
+        
+        // Bot can only update technical roles
+        if (isBot && !isTechnicalRole) {
+            return res.status(403).json({ 
+                message: 'Non-technical roles must be handled manually by admin' 
+            });
         }
 
         const oldStatus = application.status;
         application.status = status;
         await application.save();
 
+        // Add note about who updated it
+        const updateSource = isBot ? 'Bot System' : 'Admin';
+        application.notes.push({
+            text: `Status updated from ${oldStatus} to ${status} by ${updateSource}`,
+            addedBy: req.user._id
+        });
+        await application.save();
+
         // Create audit log for status change
         await createAuditLog({
             userId: req.user._id,
-            action: 'UPDATE_STATUS',
-            resourceType: 'APPLICATION',
+            action: 'APPLICATION_STATUS_CHANGE',
+            resourceType: 'application',
             resourceId: application._id,
-            details: `Application status changed from ${oldStatus} to ${status}`
+            description: `${updateSource} updated ${application.jobId.title}: ${oldStatus} -> ${status}`
         });
 
         res.json(application);

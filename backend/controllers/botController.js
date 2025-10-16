@@ -2,31 +2,44 @@ const Application = require('../models/Application');
 const Job = require('../models/Job');
 const { createAuditLog } = require('./auditController');
 
-// Get bot dashboard data
+// Get bot dashboard data - only technical applications
 exports.getDashboard = async (req, res) => {
     try {
-        // Get pending applications
+        // Get pending technical applications only
         const pendingApplications = await Application.find({ status: 'pending' })
             .populate([
                 { path: 'jobId', select: 'title department type roleCategory' },
                 { path: 'applicantId', select: 'username email' }
             ])
             .sort({ createdAt: 1 }); // Process oldest first
+        
+        // Filter for technical roles only
+        const technicalApplications = pendingApplications.filter(app => 
+            app.jobId && app.jobId.roleCategory === 'technical'
+        );
 
-        // Get active jobs
-        const activeJobs = await Job.find({ isActive: true })
+        // Get active technical jobs only
+        const activeJobs = await Job.find({ isActive: true, roleCategory: 'technical' })
             .populate('postedBy', 'username')
             .sort({ createdAt: -1 });
 
-        // Get application statistics
-        const applicationStats = await Application.aggregate([
-            {
-                $group: {
-                    _id: '$status',
-                    count: { $sum: 1 }
-                }
+        // Get application statistics for technical roles only
+        const allTechnicalApps = await Application.find({})
+            .populate('jobId', 'roleCategory');
+        
+        const technicalAppsOnly = allTechnicalApps.filter(app => 
+            app.jobId && app.jobId.roleCategory === 'technical'
+        );
+        
+        const applicationStats = technicalAppsOnly.reduce((acc, app) => {
+            const existing = acc.find(stat => stat._id === app.status);
+            if (existing) {
+                existing.count++;
+            } else {
+                acc.push({ _id: app.status, count: 1 });
             }
-        ]);
+            return acc;
+        }, []);
 
         // Create audit log for bot dashboard access
         await createAuditLog({
@@ -38,13 +51,14 @@ exports.getDashboard = async (req, res) => {
         });
 
         res.json({
-            pendingApplications,
+            pendingApplications: technicalApplications,
             activeJobs,
             applicationStats,
             botInfo: {
                 id: req.user._id,
                 name: req.user.username,
-                lastAccess: new Date()
+                lastAccess: new Date(),
+                handledRoles: 'technical'
             }
         });
     } catch (error) {
@@ -53,69 +67,49 @@ exports.getDashboard = async (req, res) => {
     }
 };
 
-// Process applications automatically (for technical roles)
+// Auto-process technical applications with random outcomes
 exports.processApplications = async (req, res) => {
     try {
-        const { applicationIds } = req.body;
+        // Get all pending technical applications
+        const pendingTechnicalApps = await Application.find({ status: 'pending' })
+            .populate('jobId', 'title department type roleCategory');
         
-        if (!applicationIds || !Array.isArray(applicationIds)) {
-            return res.status(400).json({ message: 'Application IDs array is required' });
-        }
+        const technicalApps = pendingTechnicalApps.filter(app => 
+            app.jobId && app.jobId.roleCategory === 'technical'
+        );
 
         const processedApplications = [];
-        const errors = [];
+        const statuses = ['reviewing', 'shortlisted', 'rejected', 'accepted'];
 
-        for (const appId of applicationIds) {
-            try {
-                const application = await Application.findById(appId)
-                    .populate('jobId', 'title department type roleCategory');
+        for (const application of technicalApps) {
+            // Random status progression for technical roles
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            
+            application.status = randomStatus;
+            await application.save();
 
-                if (!application) {
-                    errors.push({ appId, error: 'Application not found' });
-                    continue;
-                }
+            // Add automated note
+            application.notes.push({
+                text: `🤖 Bot Auto-Processing: Status randomly updated to ${randomStatus} for technical role`,
+                addedBy: req.user._id
+            });
+            await application.save();
 
-                // Check if it's a technical role via roleCategory
-                const isTechnical = application.jobId && application.jobId.roleCategory === 'technical';
+            // Create audit log
+            await createAuditLog({
+                userId: req.user._id,
+                action: 'APPLICATION_STATUS_CHANGE',
+                resourceType: 'application',
+                resourceId: application._id,
+                description: `Bot auto-processed technical application: ${application.jobId.title}`
+            });
 
-                if (!isTechnical) {
-                    errors.push({ appId, error: 'Not a technical role - bot cannot process' });
-                    continue;
-                }
-
-                // Simulate automated processing
-                const statuses = ['pending', 'reviewing', 'shortlisted', 'accepted'];
-                const currentIndex = statuses.indexOf(application.status);
-                const nextStatus = statuses[currentIndex + 1] || 'accepted';
-
-                application.status = nextStatus;
-                await application.save();
-
-                // Add automated note
-                application.notes.push({
-                    text: `Automated processing: Status updated to ${nextStatus} by bot system`,
-                    addedBy: req.user._id
-                });
-                await application.save();
-
-                // Create audit log
-                await createAuditLog({
-                    userId: req.user._id,
-                    action: 'APPLICATION_STATUS_CHANGE',
-                    resourceType: 'application',
-                    resourceId: application._id,
-                    description: `Bot processed application: ${application.jobId.title}`
-                });
-
-                processedApplications.push(application);
-            } catch (error) {
-                errors.push({ appId, error: error.message });
-            }
+            processedApplications.push(application);
         }
 
         res.json({
             processed: processedApplications.length,
-            errors,
+            message: `Auto-processed ${processedApplications.length} technical applications`,
             applications: processedApplications
         });
     } catch (error) {
@@ -124,38 +118,30 @@ exports.processApplications = async (req, res) => {
     }
 };
 
-// Simulate automated updates
-exports.simulateUpdates = async (req, res) => {
+// Auto-process all pending technical applications
+exports.autoProcessTechnical = async (req, res) => {
     try {
-        const { count = 5 } = req.body;
+        // Get all pending technical applications
+        const pendingApps = await Application.find({ status: 'pending' })
+            .populate('jobId', 'title department type roleCategory');
 
-        // Get technical applications that can be processed
-        const applications = await Application.find({ 
-            status: { $in: ['pending', 'reviewing'] }
-        })
-        .populate('jobId', 'title department type')
-        .limit(parseInt(count));
-
-        const technicalApps = applications.filter(app => 
-            app.jobId && 
-            (app.jobId.department.toLowerCase().includes('engineering') ||
-             app.jobId.department.toLowerCase().includes('technical') ||
-             app.jobId.department.toLowerCase().includes('development'))
+        const technicalApps = pendingApps.filter(app => 
+            app.jobId && app.jobId.roleCategory === 'technical'
         );
 
         const updatedApplications = [];
+        const outcomes = ['reviewing', 'shortlisted', 'rejected', 'accepted'];
 
         for (const app of technicalApps) {
-            const statuses = ['pending', 'reviewing', 'shortlisted', 'accepted'];
-            const currentIndex = statuses.indexOf(app.status);
-            const nextStatus = statuses[currentIndex + 1] || 'accepted';
-
-            app.status = nextStatus;
+            // Random outcome for technical applications
+            const randomOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
+            
+            app.status = randomOutcome;
             await app.save();
 
             // Add automated note
             app.notes.push({
-                text: `🤖 Automated update: Application moved to ${nextStatus} status by bot system`,
+                text: `🤖 Bot Auto-Processing: Technical role automatically processed with outcome: ${randomOutcome}`,
                 addedBy: req.user._id
             });
             await app.save();
@@ -166,18 +152,19 @@ exports.simulateUpdates = async (req, res) => {
                 action: 'APPLICATION_STATUS_CHANGE',
                 resourceType: 'application',
                 resourceId: app._id,
-                description: `Bot simulated update for: ${app.jobId.title}`
+                description: `Bot auto-processed technical role: ${app.jobId.title} -> ${randomOutcome}`
             });
 
             updatedApplications.push(app);
         }
 
         res.json({
-            message: `Simulated updates for ${updatedApplications.length} applications`,
+            message: `Auto-processed ${updatedApplications.length} technical applications`,
+            processed: updatedApplications.length,
             applications: updatedApplications
         });
     } catch (error) {
-        console.error('Simulate updates error:', error);
+        console.error('Auto process technical error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -194,28 +181,29 @@ exports.getTechnicalApplications = async (req, res) => {
 
         const applications = await Application.find(query)
             .populate([
-                { path: 'jobId', select: 'title department type location' },
+                { path: 'jobId', select: 'title department type location roleCategory' },
                 { path: 'applicantId', select: 'username email' }
             ])
             .sort({ submittedAt: -1 })
             .skip(skip)
             .limit(parseInt(limit));
 
-        // Filter for technical roles only
+        // Filter for technical roles using roleCategory
         const technicalApplications = applications.filter(app => 
-            app.jobId && 
-            (app.jobId.department.toLowerCase().includes('engineering') ||
-             app.jobId.department.toLowerCase().includes('technical') ||
-             app.jobId.department.toLowerCase().includes('development'))
+            app.jobId && app.jobId.roleCategory === 'technical'
         );
 
-        const total = await Application.countDocuments(query);
+        const totalTechnical = await Application.countDocuments({})
+            .then(async () => {
+                const allApps = await Application.find({}).populate('jobId', 'roleCategory');
+                return allApps.filter(app => app.jobId && app.jobId.roleCategory === 'technical').length;
+            });
 
         res.json({
             applications: technicalApplications,
             currentPage: parseInt(page),
-            totalPages: Math.ceil(total / limit),
-            totalApplications: total
+            totalPages: Math.ceil(totalTechnical / limit),
+            totalApplications: totalTechnical
         });
     } catch (error) {
         console.error('Get technical applications error:', error);

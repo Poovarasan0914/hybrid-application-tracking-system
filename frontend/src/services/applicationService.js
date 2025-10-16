@@ -21,6 +21,12 @@ export const applicationService = {
     return response.data;
   },
 
+  // Get non-technical applications (admin only)
+  getNonTechnicalApplications: async (params = {}) => {
+    const response = await api.get('/api/applications/non-technical', { params });
+    return response.data;
+  },
+
   // Get application by ID
   getApplicationById: async (id) => {
     const response = await api.get(API_ENDPOINTS.APPLICATIONS.BY_ID(id));
