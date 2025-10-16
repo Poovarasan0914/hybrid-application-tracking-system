@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ats-collection-2024",
+		"_postman_id": "ats-collection-2025",
 		"name": "Application Tracking System",
 		"description": "MERN stack application for managing job applications with automated tracking",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -25,6 +25,26 @@
 			"key": "jwt_token",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "job_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "application_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "bot_token",
+			"value": "",
+			"type": "string"
 		}
 	],
 	"item": [
@@ -33,6 +53,18 @@
 			"item": [
 				{
 					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    console.log('User registered successfully');",
+									"}"
+								]
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -44,6 +76,39 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"username\": \"john_doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"applicant\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Register Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    console.log('Admin registered successfully');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin_user\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/register",
@@ -87,6 +152,109 @@
 					}
 				},
 				{
+					"name": "Register Bot",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    console.log('Bot registered successfully');",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"bot_user\",\n  \"email\": \"bot@example.com\",\n  \"password\": \"bot123\",\n  \"role\": \"bot\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('admin_token', response.token);",
+									"    pm.collectionVariables.set('jwt_token', response.token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login Bot",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('bot_token', response.token);",
+									"    pm.collectionVariables.set('jwt_token', response.token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"bot@example.com\",\n  \"password\": \"bot123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
 					"name": "Get Profile",
 					"request": {
 						"method": "GET",
@@ -119,7 +287,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\",\n  \"experience\": 3,\n  \"skills\": [\"JavaScript\", \"React\", \"Node.js\"]\n}"
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\",\n  \"address\": \"123 Main St, City, State\",\n  \"experience\": 3,\n  \"skills\": [\"JavaScript\", \"React\", \"Node.js\"],\n  \"education\": \"Bachelor's in Computer Science\",\n  \"resume\": \"Experienced developer with 3 years in web development\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/auth/profile",
@@ -135,6 +303,21 @@
 			"item": [
 				{
 					"name": "Get Active Jobs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.jobs && response.jobs.length > 0) {",
+									"        pm.collectionVariables.set('job_id', response.jobs[0]._id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [
@@ -167,6 +350,19 @@
 			"item": [
 				{
 					"name": "Submit Application",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('application_id', response.application._id);",
+									"}"
+								]
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -181,7 +377,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"jobId\": \"JOB_ID_HERE\",\n  \"coverLetter\": \"I am very interested in this position and believe my skills align well with the requirements.\"\n}"
+							"raw": "{\n  \"jobId\": \"{{job_id}}\",\n  \"coverLetter\": \"I am very interested in this position and believe my skills align well with the requirements.\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/applications",
@@ -213,13 +409,51 @@
 			"name": "Admin",
 			"item": [
 				{
+					"name": "Create Job",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('job_id', response.job._id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Software Engineer\",\n  \"department\": \"Engineering\",\n  \"description\": \"Develop and maintain web applications\",\n  \"requirements\": [\"JavaScript\", \"React\", \"Node.js\"],\n  \"roleCategory\": \"technical\",\n  \"type\": \"full-time\",\n  \"location\": \"Remote\",\n  \"salary\": {\n    \"min\": 80000,\n    \"max\": 120000,\n    \"currency\": \"USD\"\n  },\n  \"deadline\": \"2024-12-31T23:59:59.000Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/jobs",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "jobs"]
+						}
+					}
+				},
+				{
 					"name": "Get Admin Dashboard",
 					"request": {
 						"method": "GET",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{admin_token}}"
 							}
 						],
 						"url": {
@@ -236,7 +470,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{admin_token}}"
 							}
 						],
 						"url": {
@@ -267,7 +501,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{admin_token}}"
 							},
 							{
 								"key": "Content-Type",
@@ -279,20 +513,20 @@
 							"raw": "{\n  \"status\": \"shortlisted\",\n  \"comment\": \"Candidate shows strong potential\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/admin/applications/APPLICATION_ID/status",
+							"raw": "{{base_url}}/admin/applications/{{application_id}}/status",
 							"host": ["{{base_url}}"],
-							"path": ["admin", "applications", "APPLICATION_ID", "status"]
+							"path": ["admin", "applications", "{{application_id}}", "status"]
 						}
 					}
 				},
 				{
 					"name": "Add Application Note",
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{admin_token}}"
 							},
 							{
 								"key": "Content-Type",
@@ -304,34 +538,9 @@
 							"raw": "{\n  \"note\": \"Excellent communication skills during phone screening\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/admin/applications/APPLICATION_ID/notes",
+							"raw": "{{base_url}}/admin/applications/{{application_id}}/notes",
 							"host": ["{{base_url}}"],
-							"path": ["admin", "applications", "APPLICATION_ID", "notes"]
-						}
-					}
-				},
-				{
-					"name": "Create Job",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"title\": \"Software Engineer\",\n  \"department\": \"Engineering\",\n  \"description\": \"Develop and maintain web applications\",\n  \"requirements\": [\"JavaScript\", \"React\", \"Node.js\"],\n  \"roleCategory\": \"technical\",\n  \"type\": \"full-time\",\n  \"location\": \"Remote\",\n  \"salary\": {\n    \"min\": 80000,\n    \"max\": 120000,\n    \"currency\": \"USD\"\n  },\n  \"deadline\": \"2024-12-31T23:59:59.000Z\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/admin/jobs",
-							"host": ["{{base_url}}"],
-							"path": ["admin", "jobs"]
+							"path": ["admin", "applications", "{{application_id}}", "notes"]
 						}
 					}
 				},
@@ -342,7 +551,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{admin_token}}"
 							}
 						],
 						"url": {
@@ -370,7 +579,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{bot_token}}"
 							}
 						],
 						"url": {
@@ -387,7 +596,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{bot_token}}"
 							}
 						],
 						"url": {
@@ -404,7 +613,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{bot_token}}"
 							},
 							{
 								"key": "Content-Type",
@@ -429,7 +638,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{bot_token}}"
 							}
 						],
 						"url": {
@@ -451,7 +660,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{jwt_token}}"
+								"value": "Bearer {{admin_token}}"
 							}
 						],
 						"url": {

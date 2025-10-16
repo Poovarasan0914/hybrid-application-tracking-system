@@ -36,8 +36,8 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Create user with provided role (applicant or admin)
-        const normalizedRole = (role === 'admin') ? 'admin' : 'applicant';
+        // Create user with provided role (applicant, admin, or bot)
+        const normalizedRole = ['admin', 'bot'].includes(role) ? role : 'applicant';
         user = new User({ username, email, password, role: normalizedRole });
         await user.save();
 

@@ -40,7 +40,7 @@ const registerValidation = [
     body('username').trim().notEmpty().withMessage('Username is required'),
     body('email').isEmail().withMessage('Please enter a valid email'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-    body('role').optional().isIn(['applicant', 'admin']).withMessage('Role must be applicant or admin')
+    body('role').optional().isIn(['applicant', 'admin', 'bot']).withMessage('Role must be applicant, admin, or bot')
 ];
 
 const loginValidation = [
