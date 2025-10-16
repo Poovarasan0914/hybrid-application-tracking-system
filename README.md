@@ -2,33 +2,21 @@
 
 A comprehensive MERN stack application for managing job applications with automated tracking for technical roles and manual management for non-technical roles.
 
-## 🚀 Features
+## 🎯 Problem Statement Solution
 
-### Role-Based Authentication & Dashboards
-- **JWT Authentication** with username/email + password
-- **Three User Roles**: Applicant, Bot Mimic, Admin
-- **Interactive Dashboards** with charts, metrics, and real-time data
-- **Access Control** ensuring role-based permissions
+This system addresses the challenge of managing applications where:
+- **Technical roles** have automated tracking via APIs (Bot Mimic)
+- **Non-technical roles** require manual management (Admin)
+- **Full traceability** is maintained for all applications
 
-### Application Management
-- **Complete Application Workflow** from creation to final decision
-- **Profile Management** with mandatory completion before applying
-- **Real-time Status Tracking** with visual indicators
-- **Full Audit Trail** with timestamps and user attribution
+## ✨ Key Features
 
-### Bot Mimic Automation (Technical Roles)
-- **Human-like Workflow Processing**: Applied → Reviewed → Interview → Offer → Decision
-- **Automated Status Updates** every 3 minutes with manual trigger option
-- **Smart Comments** with stage-specific human-like responses
-- **Technical Role Filtering** - processes only technical applications
-- **Progress Statistics** with workflow stage distribution
-
-### Admin Manual Management (Non-Technical Roles)
-- **Job Creation & Management** with role categorization
-- **Manual Status Updates** with full control over non-technical applications
-- **Note & Comment System** for detailed application tracking
-- **Comprehensive Metrics Dashboard** with charts and KPIs
-- **Limited Technical Role Control** (accept/reject shortlisted applications only)
+- **Role-Based Authentication**: JWT-based auth with Applicant, Admin, Bot roles
+- **Automated Bot Mimic**: Human-like processing for technical applications
+- **Admin Management**: Manual control for non-technical applications  
+- **Complete Audit Trail**: Full traceability with timestamps and user attribution
+- **Interactive Dashboards**: Real-time charts and metrics for all roles
+- **Profile Management**: Mandatory profile completion before applying
 
 ## 🛠 Tech Stack
 
@@ -317,28 +305,19 @@ Submit Application → Admin Review → Manual Status Updates → Final Decision
 3. Set environment variables for production
 4. Enable CORS for your frontend domain
 
-## 🔧 Key API Endpoints
+## 📚 API Documentation
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile
-- `PUT /api/auth/profile` - Update user profile
+### Swagger UI
+Access interactive API documentation at: **http://localhost:5000/api-docs**
 
-### Applications
-- `POST /api/applications` - Submit application
-- `GET /api/applications/my-applications` - Get user's applications
+### Postman Collection
+Import the collection: `Application_Tracking_System.postman_collection.json`
 
-### Admin
-- `GET /api/admin/dashboard` - Get admin dashboard data
-- `PUT /api/admin/applications/:id/status` - Update application status
-- `POST /api/admin/applications/:id/notes` - Add note to application
-- `POST /api/admin/jobs` - Create new job
-
-### Bot Mimic
-- `POST /api/bot/mimic/trigger` - Manual workflow trigger
-- `GET /api/bot/mimic/stats` - Get workflow statistics
-- `POST /api/bot/mimic/toggle` - Start/stop bot mimic
+### Key Endpoints
+- **Auth**: `/api/auth/register`, `/api/auth/login`
+- **Applications**: `/api/applications`, `/api/applications/my-applications`  
+- **Admin**: `/api/admin/dashboard`, `/api/admin/jobs`
+- **Bot Mimic**: `/api/bot/mimic/trigger`, `/api/bot/mimic/stats`
 
 ## 🧪 Testing
 

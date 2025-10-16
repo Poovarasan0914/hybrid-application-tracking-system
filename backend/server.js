@@ -2,6 +2,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 require('dotenv').config(); // Load environment variables
 
 // Application configuration and middleware
@@ -24,6 +26,36 @@ const botMimic = require('./services/botMimic');
 // Initialize Express application
 const app = express();
 
+// Swagger configuration
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Application Tracking System API',
+            version: '1.0.0',
+            description: 'MERN stack application for managing job applications with automated tracking',
+        },
+        servers: [
+            {
+                url: 'http://localhost:5000',
+                description: 'Development server',
+            },
+        ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                },
+            },
+        },
+    },
+    apis: ['./routes/*.js'], // Path to the API docs
+};
+
+const specs = swaggerJsdoc(swaggerOptions);
+
 // Middleware configuration
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(express.json()); // Parse JSON request bodies
@@ -39,6 +71,9 @@ mongoose.connect(config.mongoURI, {
 }).catch((err) => {
     console.error('MongoDB connection error:', err);
 });
+
+// Swagger UI setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // API Routes - All routes are prefixed with /api
 app.use('/api', userRoutes);        // User authentication and profile management
@@ -67,6 +102,7 @@ app.use((err, req, res, next) => {
 app.listen(config.port, () => {
     console.log(`🚀 Server is running on port ${config.port}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📚 API Documentation: http://localhost:${config.port}/api-docs`);
     
     // Initialize bot automation services for technical role processing
     console.log('🤖 Starting bot automation services...');
