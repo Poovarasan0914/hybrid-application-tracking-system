@@ -1,6 +1,14 @@
+// MongoDB ODM for schema definition and validation
 const mongoose = require('mongoose');
+// Secure password hashing library
 const bcrypt = require('bcryptjs');
 
+/**
+ * User Schema Definition
+ * 
+ * Defines the structure for user accounts with role-based access control,
+ * profile management, and secure authentication features.
+ */
 const UserSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -50,12 +58,22 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-// Hash password before saving
+/**
+ * Pre-save middleware to hash passwords
+ * 
+ * Automatically hashes the password before saving to database
+ * using bcrypt with salt rounds for security. Only hashes if
+ * password field has been modified.
+ */
 UserSchema.pre('save', async function(next) {
+    // Skip hashing if password hasn't been modified
     if (!this.isModified('password')) {
         return next();
     }
+    
+    // Generate salt with 10 rounds for security
     const salt = await bcrypt.genSalt(10);
+    // Hash password with generated salt
     this.password = await bcrypt.hash(this.password, salt);
     next();
 });

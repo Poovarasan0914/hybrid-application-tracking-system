@@ -1,15 +1,34 @@
+// React hooks for state management and lifecycle
 import { useEffect, useState } from 'react';
-import { adminService } from '../../services/adminService';
-import { Box, Typography, Grid, Paper, Card, CardContent, Stack, Chip } from '@mui/material';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import SkeletonLoader from '../common/SkeletonLoader';
-import AnimatedCard from '../common/AnimatedCard';
-import { useToast } from '../common/Toast';
 
+// Service layer for admin-related API calls
+import { adminService } from '../../services/adminService';
+
+// Material-UI components for responsive layout and design
+import { Box, Typography, Grid, Paper, Card, CardContent, Stack, Chip } from '@mui/material';
+
+// Recharts library for interactive data visualization
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+// Custom components for enhanced UX
+import SkeletonLoader from '../common/SkeletonLoader';  // Loading state component
+import AnimatedCard from '../common/AnimatedCard';      // Animated card wrapper
+import { useToast } from '../common/Toast';             // Toast notification system
+
+/**
+ * AdminDashboard Component
+ * 
+ * Provides comprehensive analytics and metrics for admin users including:
+ * - Application statistics with interactive charts
+ * - Key performance indicators (KPIs)
+ * - Department-wise application distribution
+ * - Real-time data updates
+ */
 const AdminDashboard = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const { success, error } = useToast();
+  // State management for dashboard data and loading states
+  const [dashboardData, setDashboardData] = useState(null);  // Stores all dashboard metrics
+  const [loading, setLoading] = useState(true);              // Loading state for skeleton display
+  const { success, error } = useToast();                     // Toast notifications for user feedback
 
   useEffect(() => {
     const loadDashboard = async () => {

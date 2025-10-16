@@ -1,10 +1,20 @@
 const Application = require('../models/Application');
 const { createAuditLog } = require('../controllers/auditController');
 
+/**
+ * BotMimicService - Simulates human-like application processing for technical roles
+ * 
+ * This service provides automated workflow progression that mimics human decision-making
+ * patterns, including realistic delays, stage-appropriate comments, and intelligent
+ * progression logic for technical role applications.
+ */
 class BotMimicService {
     constructor() {
-        this.isRunning = false;
-        this.interval = null;
+        // Service state management
+        this.isRunning = false;  // Track if service is actively processing
+        this.interval = null;    // Store interval reference for cleanup
+        
+        // Workflow stage definitions for technical applications
         this.workflowStages = ['applied', 'reviewed', 'interview', 'offer'];
         this.finalStages = ['accepted', 'rejected'];
         
@@ -46,19 +56,25 @@ class BotMimicService {
         };
     }
 
+    /**
+     * Start the Bot Mimic service with scheduled processing
+     * Processes technical applications every 3 minutes with human-like behavior
+     */
     start() {
+        // Prevent multiple instances from running
         if (this.isRunning) return;
         
         this.isRunning = true;
         console.log('🤖 Bot Mimic started - Human-like workflow processing every 3 minutes');
         
-        // Process immediately on start
+        // Initial processing after 5 seconds to allow system initialization
         setTimeout(() => this.processWorkflow(), 5000);
         
-        // Then process every 3 minutes
+        // Schedule recurring processing every 3 minutes (180000ms)
+        // This interval simulates regular human check-ins on applications
         this.interval = setInterval(async () => {
             await this.processWorkflow();
-        }, 180000); // 3 minutes
+        }, 180000);
     }
 
     stop() {
