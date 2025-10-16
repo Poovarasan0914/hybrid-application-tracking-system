@@ -1,6 +1,7 @@
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 const { createAuditLog } = require('./auditController');
+const botMimic = require('../services/botMimic');
 
 // Get bot dashboard data - only technical applications
 exports.getDashboard = async (req, res) => {
@@ -243,6 +244,73 @@ exports.getBotActivity = async (req, res) => {
         });
     } catch (error) {
         console.error('Get bot activity error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Bot Mimic - Trigger human-like workflow
+exports.triggerBotMimic = async (req, res) => {
+    try {
+        const result = await botMimic.triggerWorkflow();
+        
+        // Create audit log
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'BOT_MIMIC_TRIGGER',
+            resourceType: 'system',
+            resourceId: req.user._id,
+            description: 'Bot Mimic workflow manually triggered'
+        });
+
+        res.json({
+            message: 'Bot Mimic workflow triggered successfully',
+            result
+        });
+    } catch (error) {
+        console.error('Bot Mimic trigger error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Get Bot Mimic workflow statistics
+exports.getBotMimicStats = async (req, res) => {
+    try {
+        const stats = await botMimic.getWorkflowStats();
+        res.json(stats);
+    } catch (error) {
+        console.error('Bot Mimic stats error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Start/Stop Bot Mimic
+exports.toggleBotMimic = async (req, res) => {
+    try {
+        const { action } = req.body; // 'start' or 'stop'
+        
+        if (action === 'start') {
+            botMimic.start();
+        } else if (action === 'stop') {
+            botMimic.stop();
+        } else {
+            return res.status(400).json({ message: 'Invalid action. Use start or stop.' });
+        }
+
+        // Create audit log
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'BOT_MIMIC_TOGGLE',
+            resourceType: 'system',
+            resourceId: req.user._id,
+            description: `Bot Mimic ${action}ed by admin`
+        });
+
+        res.json({
+            message: `Bot Mimic ${action}ed successfully`,
+            isRunning: botMimic.isRunning
+        });
+    } catch (error) {
+        console.error('Bot Mimic toggle error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };

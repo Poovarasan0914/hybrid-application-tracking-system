@@ -5,7 +5,10 @@ const {
     autoProcessTechnical,
     getTechnicalApplications,
     getBotActivity,
-    getDashboard
+    getDashboard,
+    triggerBotMimic,
+    getBotMimicStats,
+    toggleBotMimic
 } = require('../controllers/botController');
 
 const router = express.Router();
@@ -16,5 +19,10 @@ router.post('/bot/process-applications', authenticate, isBot, processApplication
 router.post('/bot/auto-process-technical', authenticate, isBot, autoProcessTechnical);
 router.get('/bot/technical-applications', authenticate, isBot, getTechnicalApplications);
 router.get('/bot/activity', authenticate, isBot, getBotActivity);
+
+// Bot Mimic routes - human-like workflow
+router.post('/bot/mimic/trigger', authenticate, isBot, triggerBotMimic);
+router.get('/bot/mimic/stats', authenticate, isBot, getBotMimicStats);
+router.post('/bot/mimic/toggle', authenticate, isBot, toggleBotMimic);
 
 module.exports = router;

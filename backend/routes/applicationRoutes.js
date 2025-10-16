@@ -31,7 +31,7 @@ const statusValidation = [
 
 const noteValidation = [
     body('note').notEmpty().withMessage('Note text is required')
-        .isLength({ min: 10 }).withMessage('Note must be at least 10 characters long')
+        .isLength({ min: 3 }).withMessage('Note must be at least 3 characters long')
 ];
 
 // Application routes

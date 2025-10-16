@@ -10,6 +10,8 @@ const BotPage = () => {
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState('');
   const [autoMode, setAutoMode] = useState(true);
+  const [mimicStats, setMimicStats] = useState(null);
+  const [mimicProcessing, setMimicProcessing] = useState(false);
 
   const load = async () => {
     try {
@@ -19,6 +21,10 @@ const BotPage = () => {
         activeJobs: res.activeJobs || [],
         applicationStats: res.applicationStats || []
       });
+      
+      // Load Bot Mimic stats
+      const mimicRes = await botService.getBotMimicStats();
+      setMimicStats(mimicRes);
     } catch {}
   };
 
@@ -42,6 +48,28 @@ const BotPage = () => {
     await processApplications();
   };
 
+  const handleBotMimicTrigger = async () => {
+    setMimicProcessing(true);
+    try {
+      const res = await botService.triggerBotMimic();
+      setMessage(`🎯 Bot Mimic: ${res.message}`);
+      await load();
+    } catch (err) {
+      setMessage('Failed to trigger Bot Mimic');
+    }
+    setMimicProcessing(false);
+  };
+
+  const handleToggleBotMimic = async (action) => {
+    try {
+      const res = await botService.toggleBotMimic(action);
+      setMessage(`🎯 Bot Mimic ${action}ed successfully`);
+      await load();
+    } catch (err) {
+      setMessage(`Failed to ${action} Bot Mimic`);
+    }
+  };
+
   useEffect(() => {
     load();
     
@@ -62,11 +90,12 @@ const BotPage = () => {
           <Typography variant="h4" component="h1">
             Bot Dashboard - Technical Roles Only
           </Typography>
-          <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={1}>
             <Button 
               variant={autoMode ? "contained" : "outlined"}
               onClick={() => setAutoMode(!autoMode)}
               color={autoMode ? "success" : "default"}
+              size="small"
             >
               {autoMode ? '🤖 Auto Mode ON' : '⏸️ Auto Mode OFF'}
             </Button>
@@ -75,8 +104,18 @@ const BotPage = () => {
               onClick={handleManualProcess}
               disabled={processing}
               color="primary"
+              size="small"
             >
               {processing ? 'Processing...' : 'Process Now'}
+            </Button>
+            <Button 
+              variant="contained" 
+              onClick={handleBotMimicTrigger}
+              disabled={mimicProcessing}
+              color="secondary"
+              size="small"
+            >
+              {mimicProcessing ? 'Mimicking...' : '🎯 Bot Mimic'}
             </Button>
           </Stack>
         </Stack>
@@ -87,15 +126,37 @@ const BotPage = () => {
           </Alert>
         )}
 
-        <Alert severity={autoMode ? "success" : "warning"} sx={{ mb: 3 }}>
-          <strong>Bot Status:</strong> {autoMode ? '🤖 Automatically processing technical applications every 30 seconds' : '⏸️ Auto-processing paused - use manual processing'}
-        </Alert>
+        <Stack spacing={2} sx={{ mb: 3 }}>
+          <Alert severity={autoMode ? "success" : "warning"}>
+            <strong>Bot Status:</strong> {autoMode ? '🤖 Automatically processing technical applications every 30 seconds' : '⏸️ Auto-processing paused - use manual processing'}
+          </Alert>
+          <Alert severity="info">
+            <strong>Bot Mimic:</strong> {mimicStats?.isRunning ? '🎯 Human-like workflow processing active (Applied → Reviewed → Interview → Offer)' : '⏸️ Bot Mimic paused'}
+            {mimicStats && ` | Total Technical Apps: ${mimicStats.totalTechnicalApplications}`}
+          </Alert>
+        </Stack>
 
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid item xs={12} md={6}>
             <Paper variant="outlined" sx={{ p: 2 }}>
               <Typography variant="h6" sx={{ mb: 2 }}>Technical Application Stats</Typography>
               <BotStats stats={data.applicationStats} />
+            </Paper>
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Paper variant="outlined" sx={{ p: 2 }}>
+              <Typography variant="h6" sx={{ mb: 2 }}>Bot Mimic Workflow Stats</Typography>
+              {mimicStats?.stageDistribution && (
+                <Stack spacing={1}>
+                  {Object.entries(mimicStats.stageDistribution).map(([stage, count]) => (
+                    <Stack key={stage} direction="row" justifyContent="space-between">
+                      <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>{stage}:</Typography>
+                      <Typography variant="body2" fontWeight="bold">{count}</Typography>
+                    </Stack>
+                  ))}
+                </Stack>
+              )}
             </Paper>
           </Grid>
 

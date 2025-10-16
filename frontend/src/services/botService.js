@@ -25,6 +25,22 @@ export const botService = {
   getTechnicalApplications: async (params = {}) => {
     const response = await api.get('/api/bot/technical-applications', { params });
     return response.data;
+  },
+
+  // Bot Mimic - Human-like workflow
+  triggerBotMimic: async () => {
+    const response = await api.post('/api/bot/mimic/trigger');
+    return response.data;
+  },
+
+  getBotMimicStats: async () => {
+    const response = await api.get('/api/bot/mimic/stats');
+    return response.data;
+  },
+
+  toggleBotMimic: async (action) => {
+    const response = await api.post('/api/bot/mimic/toggle', { action });
+    return response.data;
   }
 };
 
