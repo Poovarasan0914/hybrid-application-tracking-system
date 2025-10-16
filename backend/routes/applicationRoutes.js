@@ -1,0 +1,44 @@
+const express = require('express');
+const { body } = require('express-validator');
+const { authenticate, isAdmin, isAdminOrBot } = require('../middleware/auth');
+const {
+    submitApplication,
+    getMyApplications,
+    getAllApplications,
+    getApplicationById,
+    updateApplicationStatus,
+    addApplicationNote
+} = require('../controllers/applicationController');
+
+const router = express.Router();
+
+// Validation middleware
+const applicationValidation = [
+    body('jobId').isMongoId().withMessage('Valid job ID is required'),
+    body('coverLetter').notEmpty().withMessage('Cover letter is required')
+        .isLength({ min: 100 }).withMessage('Cover letter must be at least 100 characters long'),
+    body('documents').optional().isArray().withMessage('Documents must be an array'),
+    body('documents.*.name').optional().notEmpty().withMessage('Document name is required'),
+    body('documents.*.url').optional().isURL().withMessage('Valid document URL is required'),
+    body('documents.*.type').optional().notEmpty().withMessage('Document type is required')
+];
+
+const statusValidation = [
+    body('status').isIn(['pending', 'reviewing', 'shortlisted', 'rejected', 'accepted'])
+        .withMessage('Invalid status value')
+];
+
+const noteValidation = [
+    body('note').notEmpty().withMessage('Note text is required')
+        .isLength({ min: 10 }).withMessage('Note must be at least 10 characters long')
+];
+
+// Application routes
+router.post('/applications', authenticate, applicationValidation, submitApplication);
+router.get('/applications/my-applications', authenticate, getMyApplications);
+router.get('/applications/all', authenticate, isAdmin, getAllApplications);
+router.get('/applications/:id', authenticate, getApplicationById);
+router.put('/applications/:id/status', authenticate, isAdminOrBot, statusValidation, updateApplicationStatus);
+router.post('/applications/:id/notes', authenticate, isAdminOrBot, noteValidation, addApplicationNote);
+
+module.exports = router;
