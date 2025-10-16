@@ -43,13 +43,15 @@ const LoginPage = () => {
         borderRadius: '16px',
         padding: '40px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease'
       }}>
         <h1 style={{
           fontSize: '2rem',
           color: '#1f2937',
           textAlign: 'center',
           marginBottom: '2rem',
-          fontWeight: '600'
+          fontWeight: '600',
+          transition: 'color 0.3s ease'
         }}>
           Welcome Back
         </h1>
@@ -90,7 +92,8 @@ const LoginPage = () => {
                 marginBottom: '0.5rem',
                 color: '#374151',
                 fontSize: '0.875rem',
-                fontWeight: '500'
+                fontWeight: '500',
+                transition: 'color 0.3s ease'
               }}
             >
               Email
@@ -104,7 +107,9 @@ const LoginPage = () => {
                 borderRadius: '8px',
                 border: errors.email ? '2px solid #ef4444' : '1px solid #d1d5db',
                 outline: 'none',
-                transition: 'border-color 0.2s',
+                transition: 'all 0.3s ease',
+                backgroundColor: '#ffffff',
+                color: '#1f2937',
               }}
               placeholder="Enter your email"
               autoComplete="email"
@@ -128,7 +133,8 @@ const LoginPage = () => {
                 marginBottom: '0.5rem',
                 color: '#374151',
                 fontSize: '0.875rem',
-                fontWeight: '500'
+                fontWeight: '500',
+                transition: 'color 0.3s ease'
               }}
             >
               Password
@@ -142,7 +148,9 @@ const LoginPage = () => {
                 borderRadius: '8px',
                 border: errors.password ? '2px solid #ef4444' : '1px solid #d1d5db',
                 outline: 'none',
-                transition: 'border-color 0.2s',
+                transition: 'all 0.3s ease',
+                backgroundColor: '#ffffff',
+                color: '#1f2937',
               }}
               placeholder="Enter your password"
               autoComplete="current-password"
@@ -178,7 +186,8 @@ const LoginPage = () => {
               style={{
                 color: '#374151',
                 fontSize: '0.875rem',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'color 0.3s ease'
               }}
             >
               Remember me
@@ -219,7 +228,8 @@ const LoginPage = () => {
             textAlign: 'center',
             marginTop: '1rem',
             color: '#6b7280',
-            fontSize: '0.875rem'
+            fontSize: '0.875rem',
+            transition: 'color 0.3s ease'
           }}>
             Don't have an account? {' '}
             <Link 
@@ -227,7 +237,8 @@ const LoginPage = () => {
               style={{
                 color: '#2563eb',
                 textDecoration: 'none',
-                fontWeight: '500'
+                fontWeight: '500',
+                transition: 'color 0.3s ease'
               }}
               onMouseOver={(e) => {
                 e.currentTarget.style.textDecoration = 'underline';
