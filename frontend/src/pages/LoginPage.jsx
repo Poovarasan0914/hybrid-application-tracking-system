@@ -20,7 +20,14 @@ const LoginPage = () => {
     clearError();
     const result = await login(values.email, values.password, values.rememberMe);
     if (result.success) {
-      navigate(from, { replace: true });
+      const role = result.user?.role;
+      if (role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else if (role === 'bot') {
+        navigate('/bot', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } else {
       setError('root', { message: result.error || 'Login failed' });
     }

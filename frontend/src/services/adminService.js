@@ -15,6 +15,12 @@ export const adminService = {
     return response.data;
   },
 
+  // Create bot user (admin only)
+  createBotUser: async ({ username, email, password }) => {
+    const response = await api.post(API_ENDPOINTS.ADMIN.CREATE_BOT_USER, { username, email, password });
+    return response.data;
+  },
+
   // Get audit logs (admin only)
   getAuditLogs: async (params = {}) => {
     const response = await api.get(API_ENDPOINTS.AUDIT, { params });

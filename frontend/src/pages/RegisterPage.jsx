@@ -1,4 +1,4 @@
-import { Container, Typography, Box, TextField, Button, Checkbox, FormControlLabel, Alert } from '@mui/material';
+import { Container, Typography, Box, TextField, Button, Checkbox, FormControlLabel, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { registerSchema } from '../utils/validators';
@@ -11,15 +11,22 @@ const RegisterPage = () => {
 
   const { register, handleSubmit, formState: { errors }, setError } = useForm({
     resolver: yupResolver(registerSchema),
-    defaultValues: { username: '', email: '', password: '', confirmPassword: '', rememberMe: true }
+    defaultValues: { username: '', email: '', password: '', confirmPassword: '', role: 'applicant', rememberMe: true }
   });
 
   const onSubmit = async (values) => {
     clearError();
-    const payload = { username: values.username, email: values.email, password: values.password };
+    const payload = { username: values.username, email: values.email, password: values.password, role: values.role };
     const result = await registerUser(payload, values.rememberMe);
     if (result.success) {
-      navigate('/dashboard', { replace: true });
+      const role = result.user?.role;
+      if (role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else if (role === 'bot') {
+        navigate('/bot', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
     } else {
       setError('root', { message: result.error || 'Registration failed' });
     }
@@ -80,6 +87,20 @@ const RegisterPage = () => {
             helperText={errors.confirmPassword?.message}
             autoComplete="new-password"
           />
+
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="role-label">Role</InputLabel>
+            <Select
+              labelId="role-label"
+              label="Role"
+              defaultValue="applicant"
+              {...register('role')}
+              error={!!errors.role}
+            >
+              <MenuItem value="applicant">Applicant</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </Select>
+          </FormControl>
 
           <FormControlLabel
             control={<Checkbox color="primary" {...register('rememberMe')} />}

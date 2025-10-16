@@ -22,7 +22,7 @@ exports.register = async (req, res) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        const { username, email, password } = req.body;
+        const { username, email, password, role } = req.body;
 
         // Check if user exists
         let user = await User.findOne({ email });
@@ -30,8 +30,9 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Create user
-        user = new User({ username, email, password });
+        // Create user with provided role (applicant or admin)
+        const normalizedRole = (role === 'admin') ? 'admin' : 'applicant';
+        user = new User({ username, email, password, role: normalizedRole });
         await user.save();
 
         // Generate token
@@ -96,6 +97,45 @@ exports.login = async (req, res) => {
         });
     } catch (error) {
         console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Admin: create bot user
+exports.createBotUser = async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { username, email, password } = req.body;
+
+        let existing = await User.findOne({ email });
+        if (existing) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+
+        const botUser = new User({ username, email, password, role: 'bot', isActive: true });
+        await botUser.save();
+
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'CREATE',
+            resourceType: 'USER',
+            resourceId: botUser._id,
+            details: 'Admin created bot user'
+        });
+
+        res.status(201).json({
+            id: botUser._id,
+            username: botUser.username,
+            email: botUser.email,
+            role: botUser.role,
+            isActive: botUser.isActive
+        });
+    } catch (error) {
+        console.error('Create bot user error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };

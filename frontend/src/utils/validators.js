@@ -28,7 +28,11 @@ export const registerSchema = yup.object({
   confirmPassword: yup
     .string()
     .oneOf([yup.ref('password'), null], 'Passwords must match')
-    .required('Please confirm your password')
+    .required('Please confirm your password'),
+  role: yup
+    .string()
+    .oneOf(['applicant', 'admin'], 'Invalid role')
+    .required('Role is required')
 });
 
 export const jobSchema = yup.object({

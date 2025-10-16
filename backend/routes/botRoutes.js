@@ -4,12 +4,14 @@ const {
     processApplications,
     simulateUpdates,
     getTechnicalApplications,
-    getBotActivity
+    getBotActivity,
+    getDashboard
 } = require('../controllers/botController');
 
 const router = express.Router();
 
 // Bot automation routes
+router.get('/bot/dashboard', authenticate, isBot, getDashboard);
 router.post('/bot/process-applications', authenticate, isBot, processApplications);
 router.post('/bot/simulate-updates', authenticate, isBot, simulateUpdates);
 router.get('/bot/technical-applications', authenticate, isBot, getTechnicalApplications);

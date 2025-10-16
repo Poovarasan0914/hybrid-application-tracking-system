@@ -15,7 +15,8 @@ const router = express.Router();
 const registerValidation = [
     body('username').trim().notEmpty().withMessage('Username is required'),
     body('email').isEmail().withMessage('Please enter a valid email'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    body('role').optional().isIn(['applicant', 'admin']).withMessage('Role must be applicant or admin')
 ];
 
 const loginValidation = [
@@ -35,5 +36,12 @@ router.get('/admin/users', authenticate, isAdmin, getAllUsers);
 router.put('/admin/users/:id/activate', authenticate, isAdmin, [
     body('isActive').isBoolean().withMessage('isActive must be a boolean')
 ], toggleUserActivation);
+
+// Admin create bot user
+router.post('/admin/users/bots', authenticate, isAdmin, [
+    body('username').trim().notEmpty().withMessage('Username is required'),
+    body('email').isEmail().withMessage('Please enter a valid email'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+], require('../controllers/userController').createBotUser);
 
 module.exports = router;

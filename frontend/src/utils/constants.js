@@ -43,7 +43,8 @@ export const API_ENDPOINTS = {
   },
   ADMIN: {
     USERS: '/admin/users',
-    TOGGLE_USER: (id) => `/admin/users/${id}/activate`
+    TOGGLE_USER: (id) => `/admin/users/${id}/activate`,
+    CREATE_BOT_USER: '/admin/users/bots'
   },
   AUDIT: '/audit',
   BOT: {
