@@ -13,6 +13,55 @@ const {
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Job:
+ *       type: object
+ *       required:
+ *         - title
+ *         - department
+ *         - description
+ *         - requirements
+ *         - roleCategory
+ *         - type
+ *         - location
+ *         - salary
+ *         - deadline
+ *       properties:
+ *         title:
+ *           type: string
+ *         department:
+ *           type: string
+ *         description:
+ *           type: string
+ *         requirements:
+ *           type: array
+ *           items:
+ *             type: string
+ *         roleCategory:
+ *           type: string
+ *           enum: [technical, non-technical]
+ *         type:
+ *           type: string
+ *           enum: [full-time, part-time, contract, internship]
+ *         location:
+ *           type: string
+ *         salary:
+ *           type: object
+ *           properties:
+ *             min:
+ *               type: number
+ *             max:
+ *               type: number
+ *             currency:
+ *               type: string
+ *         deadline:
+ *           type: string
+ *           format: date-time
+ */
+
 // Validation middleware
 const jobValidation = [
     body('title').trim().notEmpty().withMessage('Job title is required'),
@@ -41,13 +90,52 @@ const jobValidation = [
         })
 ];
 
-// Public routes
+/**
+ * @swagger
+ * /api/jobs/active:
+ *   get:
+ *     summary: Get active job listings
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Number of jobs per page
+ *     responses:
+ *       200:
+ *         description: List of active jobs
+ */
 router.get('/jobs/active', getActiveJobs);
 router.get('/jobs/technical', getTechnicalJobs);
 router.get('/jobs/non-technical', getNonTechnicalJobs);
 router.get('/jobs/:id', getJobById);
 
-// Admin routes
+/**
+ * @swagger
+ * /api/jobs:
+ *   post:
+ *     summary: Create a new job (Admin only)
+ *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Job'
+ *     responses:
+ *       201:
+ *         description: Job created successfully
+ *       403:
+ *         description: Admin access required
+ */
 router.post('/jobs', authenticate, isAdmin, jobValidation, createJob);
 router.put('/jobs/:id', authenticate, isAdmin, jobValidation, updateJob);
 router.delete('/jobs/:id', authenticate, isAdmin, deleteJob);

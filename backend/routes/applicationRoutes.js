@@ -14,6 +14,22 @@ const {
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Application:
+ *       type: object
+ *       required:
+ *         - jobId
+ *         - coverLetter
+ *       properties:
+ *         jobId:
+ *           type: string
+ *         coverLetter:
+ *           type: string
+ */
+
 // Validation middleware
 const applicationValidation = [
     body('jobId').isMongoId().withMessage('Valid job ID is required'),
@@ -34,14 +50,45 @@ const noteValidation = [
         .isLength({ min: 3 }).withMessage('Note must be at least 3 characters long')
 ];
 
-// Application routes
-// Only applicants can submit applications
+/**
+ * @swagger
+ * /api/applications:
+ *   post:
+ *     summary: Submit job application
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Application'
+ *     responses:
+ *       201:
+ *         description: Application submitted successfully
+ *       403:
+ *         description: Only applicants can submit applications
+ */
 router.post('/applications', authenticate, (req, res, next) => {
     if (req.user.role !== 'applicant') {
         return res.status(403).json({ message: 'Only applicants can submit applications' });
     }
     next();
 }, applicationValidation, submitApplication);
+
+/**
+ * @swagger
+ * /api/applications/my-applications:
+ *   get:
+ *     summary: Get user's applications
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of user applications
+ */
 router.get('/applications/my-applications', authenticate, getMyApplications);
 router.get('/applications/all', authenticate, isAdmin, getAllApplications);
 router.get('/applications/non-technical', authenticate, isAdmin, getNonTechnicalApplications);

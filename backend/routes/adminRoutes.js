@@ -12,6 +12,36 @@ const {
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/admin/dashboard:
+ *   get:
+ *     summary: Get admin dashboard data
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard statistics
+ *       403:
+ *         description: Admin access required
+ */
+
+/**
+ * @swagger
+ * /api/bot/mimic/trigger:
+ *   post:
+ *     summary: Trigger bot mimic processing
+ *     tags: [Bot]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Bot processing triggered
+ *       403:
+ *         description: Bot access required
+ */
+
 // Validation middleware
 const jobValidation = [
     body('title').notEmpty().withMessage('Job title is required'),

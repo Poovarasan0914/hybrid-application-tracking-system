@@ -13,6 +13,31 @@ const {
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * /api/bot/mimic/trigger:
+ *   post:
+ *     summary: Trigger bot mimic processing
+ *     tags: [Bot]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Bot processing triggered
+ *       403:
+ *         description: Bot access required
+ *
+ * /api/bot/mimic/stats:
+ *   get:
+ *     summary: Get bot mimic statistics
+ *     tags: [Bot]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Bot statistics
+ */
+
 // Bot automation routes - only for technical roles
 router.get('/bot/dashboard', authenticate, isBot, getDashboard);
 router.post('/bot/process-applications', authenticate, isBot, processApplications);
