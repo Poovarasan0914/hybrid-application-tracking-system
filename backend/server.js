@@ -7,6 +7,7 @@ const config = require('./config/config');
 const userRoutes = require('./routes/userRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
+const auditRoutes = require('./routes/auditRoutes');
 
 const app = express();
 
@@ -28,6 +29,7 @@ mongoose.connect(config.mongoURI, {
 app.use('/api', userRoutes);
 app.use('/api', jobRoutes);
 app.use('/api', applicationRoutes);
+app.use('/api', auditRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -1,5 +1,6 @@
 const Job = require('../models/Job');
 const { validationResult } = require('express-validator');
+const { createAuditLog } = require('./auditController');
 
 // Get all active jobs with filters
 exports.getActiveJobs = async (req, res) => {
@@ -67,6 +68,15 @@ exports.createJob = async (req, res) => {
 
         const job = new Job(jobData);
         await job.save();
+
+        // Create audit log
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'CREATE',
+            resourceType: 'JOB',
+            resourceId: job._id,
+            details: `Job created: ${job.title}`
+        });
 
         res.status(201).json(job);
     } catch (error) {

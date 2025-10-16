@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const { validationResult } = require('express-validator');
+const { createAuditLog } = require('./auditController');
 
 // Get all users (admin only)
 exports.getAllUsers = async (req, res) => {

@@ -1,6 +1,7 @@
 const Application = require('../models/Application');
 const Job = require('../models/Job');
 const { validationResult } = require('express-validator');
+const { createAuditLog } = require('./auditController');
 
 // Submit new application
 exports.submitApplication = async (req, res) => {
@@ -37,6 +38,15 @@ exports.submitApplication = async (req, res) => {
         });
 
         await application.save();
+
+        // Create audit log for application submission
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'SUBMIT',
+            resourceType: 'APPLICATION',
+            resourceId: application._id,
+            details: `Application submitted for job: ${job.title}`
+        });
 
         // Populate job and applicant details
         await application.populate([
@@ -145,8 +155,18 @@ exports.updateApplicationStatus = async (req, res) => {
             return res.status(404).json({ message: 'Application not found' });
         }
 
+        const oldStatus = application.status;
         application.status = status;
         await application.save();
+
+        // Create audit log for status change
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'UPDATE_STATUS',
+            resourceType: 'APPLICATION',
+            resourceId: application._id,
+            details: `Application status changed from ${oldStatus} to ${status}`
+        });
 
         res.json(application);
     } catch (error) {
