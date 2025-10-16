@@ -4,6 +4,7 @@ import { CssBaseline, Box } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import Header from './components/common/Header';
 import config from './config/env';
 
 // Import pages (to be created in Phase 2)
@@ -39,6 +40,7 @@ function App() {
         <AuthProvider>
           <Router>
             <Box sx={{ minHeight: '100vh' }}>
+              <Header />
               <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<HomePage />} />

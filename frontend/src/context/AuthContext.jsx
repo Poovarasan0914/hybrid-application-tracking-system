@@ -1,5 +1,6 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
-import tokenManager from '../utils/tokenManager';
+import tokenManager, { setupSessionTimeout } from '../utils/tokenManager';
+import { authService } from '../services/authService';
 
 // Auth context for managing authentication state
 const AuthContext = createContext();
@@ -79,25 +80,15 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
+      const data = await authService.login(email, password);
       
       // Store token and user data
-      tokenManager.setToken(data.token);
+      // 24h default, 7d if rememberMe
+      const expiryMs = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      tokenManager.setToken(data.token, expiryMs);
       tokenManager.setUser(data.user);
       
       dispatch({
@@ -116,26 +107,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Register function
-  const register = async (userData) => {
+  const register = async (userData, rememberMe = false) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
-      }
-
-      const data = await response.json();
+      const data = await authService.register(userData);
       
       // Store token and user data
-      tokenManager.setToken(data.token);
+      const expiryMs = rememberMe ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      tokenManager.setToken(data.token, expiryMs);
       tokenManager.setUser(data.user);
       
       dispatch({
@@ -171,6 +150,14 @@ export const AuthProvider = ({ children }) => {
     logout,
     clearError,
   };
+
+  // Setup session timeout when authenticated
+  useEffect(() => {
+    if (state.isAuthenticated) {
+      const cleanup = setupSessionTimeout(() => logout(), 30);
+      return () => cleanup();
+    }
+  }, [state.isAuthenticated]);
 
   return (
     <AuthContext.Provider value={value}>
