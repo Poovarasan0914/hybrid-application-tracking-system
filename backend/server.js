@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const config = require('./config/config');
 const userRoutes = require('./routes/userRoutes');
+const jobRoutes = require('./routes/jobRoutes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ mongoose.connect(config.mongoURI, {
 
 // Routes
 app.use('/api', userRoutes);
+app.use('/api', jobRoutes);
 
 // 404 handler
 app.use((req, res) => {
