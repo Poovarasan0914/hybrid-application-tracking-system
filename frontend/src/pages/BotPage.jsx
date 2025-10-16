@@ -117,6 +117,16 @@ const BotPage = () => {
             >
               {mimicProcessing ? 'Mimicking...' : '🎯 Bot Mimic'}
             </Button>
+            {mimicStats && (
+              <Button 
+                variant={mimicStats.isRunning ? "contained" : "outlined"}
+                onClick={() => handleToggleBotMimic(mimicStats.isRunning ? 'stop' : 'start')}
+                color={mimicStats.isRunning ? "error" : "success"}
+                size="small"
+              >
+                {mimicStats.isRunning ? '⏹️ Stop' : '▶️ Start'}
+              </Button>
+            )}
           </Stack>
         </Stack>
 

@@ -6,25 +6,34 @@ const { createAuditLog } = require('./auditController');
 // Admin Dashboard - Get comprehensive metrics
 exports.getAdminDashboard = async (req, res) => {
     try {
+        console.log('Loading admin dashboard data...');
+        
         // Get all applications with job details
         const allApplications = await Application.find({})
             .populate('jobId', 'title department roleCategory')
             .populate('applicantId', 'username email');
 
-        // Filter non-technical applications for admin management
-        const nonTechnicalApps = allApplications.filter(app => 
-            app.jobId && app.jobId.roleCategory === 'non-technical'
+        console.log(`Found ${allApplications.length} total applications`);
+
+        // Get all applications (not just non-technical for better stats)
+        const validApplications = allApplications.filter(app => app.jobId);
+        
+        // Filter non-technical applications for specific stats
+        const nonTechnicalApps = validApplications.filter(app => 
+            app.jobId.roleCategory === 'non-technical'
         );
 
-        // Application statistics by status
-        const applicationStats = nonTechnicalApps.reduce((acc, app) => {
+        console.log(`Found ${nonTechnicalApps.length} non-technical applications`);
+
+        // Application statistics by status (all applications)
+        const applicationStats = validApplications.reduce((acc, app) => {
             acc[app.status] = (acc[app.status] || 0) + 1;
             return acc;
         }, {});
 
-        // Recent applications (last 7 days)
+        // Recent applications (last 7 days) - all applications
         const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-        const recentApplications = nonTechnicalApps.filter(app => 
+        const recentApplications = validApplications.filter(app => 
             new Date(app.submittedAt) >= weekAgo
         );
 
@@ -34,17 +43,29 @@ exports.getAdminDashboard = async (req, res) => {
             isActive: true, 
             roleCategory: 'non-technical' 
         });
+        const technicalJobs = await Job.countDocuments({ 
+            isActive: true, 
+            roleCategory: 'technical' 
+        });
 
         // User statistics
         const totalUsers = await User.countDocuments({});
         const activeUsers = await User.countDocuments({ isActive: true });
 
-        // Applications by department
-        const departmentStats = nonTechnicalApps.reduce((acc, app) => {
+        // Applications by department (all applications)
+        const departmentStats = validApplications.reduce((acc, app) => {
             const dept = app.jobId?.department || 'Unknown';
             acc[dept] = (acc[dept] || 0) + 1;
             return acc;
         }, {});
+
+        console.log('Dashboard stats:', {
+            totalApplications: validApplications.length,
+            nonTechnicalApps: nonTechnicalApps.length,
+            recentApps: recentApplications.length,
+            totalJobs,
+            activeUsers
+        });
 
         // Create audit log
         await createAuditLog({
@@ -56,7 +77,7 @@ exports.getAdminDashboard = async (req, res) => {
             details: {
                 role: 'admin',
                 username: req.user.username,
-                nonTechnicalAppsCount: nonTechnicalApps.length
+                totalAppsCount: validApplications.length
             },
             ipAddress: req.ip,
             userAgent: req.get('User-Agent')
@@ -65,9 +86,11 @@ exports.getAdminDashboard = async (req, res) => {
         res.json({
             applicationStats,
             recentApplications: recentApplications.length,
-            totalApplications: nonTechnicalApps.length,
+            totalApplications: validApplications.length,
+            nonTechnicalApplications: nonTechnicalApps.length,
             totalJobs,
             nonTechnicalJobs,
+            technicalJobs,
             totalUsers,
             activeUsers,
             departmentStats,
@@ -75,7 +98,7 @@ exports.getAdminDashboard = async (req, res) => {
                 id: req.user._id,
                 name: req.user.username,
                 lastAccess: new Date(),
-                managedRoles: 'non-technical'
+                managedRoles: 'all'
             }
         });
     } catch (error) {

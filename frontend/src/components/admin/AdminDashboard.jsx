@@ -45,30 +45,30 @@ const AdminDashboard = () => {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ mb: 3 }}>Admin Dashboard - Non-Technical Role Management</Typography>
+      <Typography variant="h5" sx={{ mb: 3 }}>Admin Dashboard</Typography>
       
       {/* Key Metrics */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={3}>
           <AnimatedCard delay={0}>
             <CardContent>
-              <Typography variant="h4" color="primary">{dashboardData.totalApplications}</Typography>
-              <Typography variant="body2" color="text.secondary">Non-Technical Applications</Typography>
+              <Typography variant="h4" color="primary">{dashboardData.totalApplications || 0}</Typography>
+              <Typography variant="body2" color="text.secondary">Total Applications</Typography>
             </CardContent>
           </AnimatedCard>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <AnimatedCard delay={100}>
             <CardContent>
-              <Typography variant="h4" color="success.main">{dashboardData.nonTechnicalJobs}</Typography>
-              <Typography variant="body2" color="text.secondary">Active Non-Technical Jobs</Typography>
+              <Typography variant="h4" color="success.main">{dashboardData.totalJobs || 0}</Typography>
+              <Typography variant="body2" color="text.secondary">Active Jobs</Typography>
             </CardContent>
           </AnimatedCard>
         </Grid>
         <Grid item xs={12} sm={6} md={3}>
           <AnimatedCard delay={200}>
             <CardContent>
-              <Typography variant="h4" color="info.main">{dashboardData.recentApplications}</Typography>
+              <Typography variant="h4" color="info.main">{dashboardData.recentApplications || 0}</Typography>
               <Typography variant="body2" color="text.secondary">Recent Applications (7 days)</Typography>
             </CardContent>
           </AnimatedCard>
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <AnimatedCard delay={300}>
             <CardContent>
-              <Typography variant="h4" color="warning.main">{dashboardData.activeUsers}</Typography>
+              <Typography variant="h4" color="warning.main">{dashboardData.activeUsers || 0}</Typography>
               <Typography variant="body2" color="text.secondary">Active Users</Typography>
             </CardContent>
           </AnimatedCard>
