@@ -36,6 +36,17 @@ const UserSchema = new mongoose.Schema({
     },
     lastLogin: {
         type: Date
+    },
+    profile: {
+        firstName: { type: String, trim: true },
+        lastName: { type: String, trim: true },
+        phone: { type: String, trim: true },
+        address: { type: String, trim: true },
+        experience: { type: Number, min: 0 },
+        skills: [{ type: String, trim: true }],
+        education: { type: String, trim: true },
+        resume: { type: String },
+        isComplete: { type: Boolean, default: false }
     }
 });
 

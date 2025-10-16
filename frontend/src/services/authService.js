@@ -24,6 +24,12 @@ export const authService = {
     return response.data;
   },
 
+  // Update user profile
+  updateProfile: async (profileData) => {
+    const response = await api.put(API_ENDPOINTS.AUTH.PROFILE, profileData);
+    return response.data;
+  },
+
   // Logout (client-side only)
   logout: () => {
     // Clear local storage

@@ -30,6 +30,7 @@ router.post('/auth/login', loginValidation, login);
 
 // Protected routes
 router.get('/auth/profile', authenticate, getProfile);
+router.put('/auth/profile', authenticate, require('../controllers/userController').updateProfile);
 
 // Admin routes
 router.get('/admin/users', authenticate, isAdmin, getAllUsers);

@@ -84,26 +84,29 @@ exports.getAdminDashboard = async (req, res) => {
     }
 };
 
-// Get non-technical applications for admin management
+// Get applications for admin management
 exports.getNonTechnicalApplications = async (req, res) => {
     try {
-        const { status, department, page = 1, limit = 20 } = req.query;
+        const { status, department, page = 1, limit = 20, roleCategory } = req.query;
         const skip = (page - 1) * limit;
 
-        // Build query for non-technical applications
+        // Build query for applications
         const applications = await Application.find({})
             .populate([
                 { path: 'jobId', select: 'title department roleCategory' },
-                { path: 'applicantId', select: 'username email' }
+                { path: 'applicantId', select: 'username email profile' }
             ])
             .sort({ submittedAt: -1 })
             .skip(skip)
             .limit(parseInt(limit));
 
-        // Filter for non-technical roles
-        let filteredApps = applications.filter(app => 
-            app.jobId && app.jobId.roleCategory === 'non-technical'
-        );
+        // Filter applications based on role category
+        let filteredApps = applications;
+        if (roleCategory && roleCategory !== 'all') {
+            filteredApps = applications.filter(app => 
+                app.jobId && app.jobId.roleCategory === roleCategory
+            );
+        }
 
         // Apply additional filters
         if (status) {
@@ -115,20 +118,16 @@ exports.getNonTechnicalApplications = async (req, res) => {
             );
         }
 
-        const totalNonTechnical = await Application.countDocuments({})
-            .then(async () => {
-                const allApps = await Application.find({}).populate('jobId', 'roleCategory');
-                return allApps.filter(app => app.jobId && app.jobId.roleCategory === 'non-technical').length;
-            });
+        const totalCount = await Application.countDocuments({});
 
         res.json({
             applications: filteredApps,
             currentPage: parseInt(page),
-            totalPages: Math.ceil(totalNonTechnical / limit),
-            totalApplications: totalNonTechnical
+            totalPages: Math.ceil(totalCount / limit),
+            totalApplications: filteredApps.length
         });
     } catch (error) {
-        console.error('Get non-technical applications error:', error);
+        console.error('Get applications error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -144,11 +143,18 @@ exports.updateApplicationStatus = async (req, res) => {
             return res.status(404).json({ message: 'Application not found' });
         }
 
-        // Ensure it's a non-technical role
+        // For technical roles, only allow accept/reject for shortlisted applications
         if (application.jobId.roleCategory === 'technical') {
-            return res.status(403).json({ 
-                message: 'Technical roles are managed by the bot system' 
-            });
+            if (application.status !== 'shortlisted') {
+                return res.status(403).json({ 
+                    message: 'Technical applications must be shortlisted by bot before admin can accept/reject' 
+                });
+            }
+            if (!['accepted', 'rejected'].includes(status)) {
+                return res.status(403).json({ 
+                    message: 'Technical roles can only be accepted or rejected by admin' 
+                });
+            }
         }
 
         const oldStatus = application.status;

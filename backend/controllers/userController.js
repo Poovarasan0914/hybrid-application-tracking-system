@@ -172,6 +172,29 @@ exports.getProfile = async (req, res) => {
     }
 };
 
+// Update user profile
+exports.updateProfile = async (req, res) => {
+    try {
+        const { firstName, lastName, phone, address, experience, skills, education, resume } = req.body;
+        
+        const profileData = {
+            firstName, lastName, phone, address, experience, skills, education, resume,
+            isComplete: !!(firstName && lastName && phone && experience !== undefined && skills?.length)
+        };
+
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { profile: profileData },
+            { new: true, runValidators: true }
+        );
+
+        res.json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 // Activate/deactivate user (admin only)
 exports.toggleUserActivation = async (req, res) => {
     try {
