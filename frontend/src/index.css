@@ -72,6 +72,32 @@ a:hover { text-decoration: underline; }
 .stack-md > * + * { margin-top: var(--space-4); }
 .stack-lg > * + * { margin-top: var(--space-6); }
 
+/* Page wrapper */
+.page { padding: 24px 0; }
+
+/* Responsive helpers */
+@media (max-width: 1024px) {
+  .container { padding: 0 16px; }
+}
+@media (max-width: 640px) {
+  .container { padding: 0 12px; }
+}
+
+/* Responsive grid utilities */
+.grid { display: grid; gap: 16px; }
+.grid-auto-250 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.grid-auto-200 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.grid-auto-320 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+/* Typography scale (optional utility classes) */
+h1, .h1 { font-size: clamp(24px, 2.5vw, 36px); line-height: 1.2; margin: 0 0 16px; }
+h2, .h2 { font-size: clamp(20px, 2.2vw, 28px); line-height: 1.3; margin: 0 0 12px; }
+h3, .h3 { font-size: clamp(18px, 2vw, 22px); line-height: 1.35; margin: 0 0 10px; }
+p { line-height: 1.65; }
+
+/* Media defaults */
+img, svg, video { max-width: 100%; height: auto; }
+
 /* Card */
 .card {
   background: var(--surface);
