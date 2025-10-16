@@ -1,10 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Box } from '@mui/material';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './components/common/Toast';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import Header from './components/common/Header';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import config from './config/env';
 
 // Import pages (to be created in Phase 2)
@@ -19,83 +21,78 @@ import BotPage from './pages/BotPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import ApplicationTracker from './components/applications/ApplicationTracker';
 
-// Create Material-UI theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-  },
-});
+const AppContent = () => {
+  useKeyboardShortcuts();
+  
+  return (
+    <Box sx={{ minHeight: '100vh' }}>
+      <Header />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/jobs" element={<JobsPage />} />
+        <Route path="/jobs/:id" element={<JobDetailsPage />} />
+        
+        {/* Protected routes */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute requiredRole="applicant">
+              <DashboardPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/applications/:id/timeline" 
+          element={
+            <ProtectedRoute>
+              <ApplicationTracker />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Admin routes */}
+        <Route 
+          path="/admin/*" 
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminPage />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Bot routes */}
+        <Route 
+          path="/bot/*" 
+          element={
+            <ProtectedRoute requiredRole="bot">
+              <BotPage />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Error routes */}
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Box>
+  );
+};
 
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider>
         <CssBaseline />
-        <AuthProvider>
-          <Router>
-            <Box sx={{ minHeight: '100vh' }}>
-              <Header />
-              <Routes>
-                {/* Public routes */}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-              <Route path="/jobs" element={<JobsPage />} />
-              <Route path="/jobs/:id" element={<JobDetailsPage />} />
-                
-                {/* Protected routes */}
-                <Route 
-                  path="/dashboard" 
-                  element={
-                    <ProtectedRoute requiredRole="applicant">
-                      <DashboardPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/applications/:id/timeline" 
-                  element={
-                    <ProtectedRoute>
-                      <ApplicationTracker />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Admin routes */}
-                <Route 
-                  path="/admin/*" 
-                  element={
-                    <ProtectedRoute requiredRole="admin">
-                      <AdminPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Bot routes */}
-                <Route 
-                  path="/bot/*" 
-                  element={
-                    <ProtectedRoute requiredRole="bot">
-                      <BotPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                
-                {/* Error routes */}
-                <Route path="/unauthorized" element={<UnauthorizedPage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Box>
-          </Router>
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </AuthProvider>
+        </ToastProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { adminService } from '../../services/adminService';
 import { 
-  Box, Typography, Paper, TextField, Button, Grid, MenuItem, 
+  Box, Typography, Paper, TextField, Grid, MenuItem, 
   Alert, Stack, Chip, InputAdornment 
 } from '@mui/material';
 import { Add, Work } from '@mui/icons-material';
+import AccessibleButton from '../common/AccessibleButton';
+import { useToast } from '../common/Toast';
 
 const JobCreation = ({ onJobCreated }) => {
   const [formData, setFormData] = useState({
@@ -21,6 +23,7 @@ const JobCreation = ({ onJobCreated }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const { success, error: showError } = useToast();
 
   const handleInputChange = (field, value) => {
     if (field.includes('.')) {
@@ -74,6 +77,7 @@ const JobCreation = ({ onJobCreated }) => {
 
       const result = await adminService.createJobRole(cleanedData);
       setMessage('Job role created successfully!');
+      success('Job role created successfully!');
       
       // Reset form
       setFormData({
@@ -90,7 +94,9 @@ const JobCreation = ({ onJobCreated }) => {
 
       if (onJobCreated) onJobCreated(result.job);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create job role');
+      const errorMsg = err.response?.data?.message || 'Failed to create job role';
+      setError(errorMsg);
+      showError(errorMsg);
     }
     setLoading(false);
   };
@@ -209,21 +215,36 @@ const JobCreation = ({ onJobCreated }) => {
                     onChange={(e) => handleRequirementChange(index, e.target.value)}
                   />
                   {formData.requirements.length > 1 && (
-                    <Button onClick={() => removeRequirement(index)} color="error">
+                    <AccessibleButton 
+                      onClick={() => removeRequirement(index)} 
+                      color="error"
+                      ariaLabel={`Remove requirement ${index + 1}`}
+                    >
                       Remove
-                    </Button>
+                    </AccessibleButton>
                   )}
                 </Stack>
               ))}
-              <Button startIcon={<Add />} onClick={addRequirement} variant="outlined" size="small">
+              <AccessibleButton 
+                startIcon={<Add />} 
+                onClick={addRequirement} 
+                variant="outlined" 
+                size="small"
+                ariaLabel="Add new requirement field"
+              >
                 Add Requirement
-              </Button>
+              </AccessibleButton>
             </Grid>
             <Grid item xs={12}>
               <Stack direction="row" spacing={2} justifyContent="flex-end">
-                <Button type="submit" variant="contained" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create Job Role'}
-                </Button>
+                <AccessibleButton 
+                  type="submit" 
+                  variant="contained" 
+                  loading={loading}
+                  ariaLabel="Create new job role"
+                >
+                  Create Job Role
+                </AccessibleButton>
               </Stack>
             </Grid>
           </Grid>

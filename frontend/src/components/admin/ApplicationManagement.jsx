@@ -1,18 +1,24 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../../services/adminService';
-import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack, MenuItem, TextField, Button, Alert, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack, MenuItem, TextField, Alert, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Comment, Edit } from '@mui/icons-material';
 import ApplicationStatus from '../applications/ApplicationStatus';
+import SkeletonLoader from '../common/SkeletonLoader';
+import AccessibleButton from '../common/AccessibleButton';
+import { useToast } from '../common/Toast';
 
 const ApplicationManagement = () => {
   const [applications, setApplications] = useState([]);
   const [filter, setFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('non-technical');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [noteDialog, setNoteDialog] = useState({ open: false, appId: null, note: '' });
   const [statusDialog, setStatusDialog] = useState({ open: false, appId: null, status: '', comment: '' });
+  const { success, error: showError } = useToast();
 
   const load = async () => {
+    setLoading(true);
     try {
       const data = await adminService.getNonTechnicalApplications({ 
         status: filter || undefined, 
@@ -23,8 +29,11 @@ const ApplicationManagement = () => {
       setError('');
     } catch (err) {
       console.error('Load error:', err);
-      setError(err.response?.data?.message || 'Failed to load applications');
+      const errorMsg = err.response?.data?.message || 'Failed to load applications';
+      setError(errorMsg);
+      showError(errorMsg);
     }
+    setLoading(false);
   };
 
   useEffect(() => { load(); }, [filter, roleFilter]);
@@ -37,10 +46,13 @@ const ApplicationManagement = () => {
         statusDialog.comment
       );
       setStatusDialog({ open: false, appId: null, status: '', comment: '' });
+      success('Application status updated successfully');
       await load();
       setError('');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update status');
+      const errorMsg = err.response?.data?.message || 'Failed to update status';
+      setError(errorMsg);
+      showError(errorMsg);
     }
   };
 
@@ -48,10 +60,13 @@ const ApplicationManagement = () => {
     try {
       await adminService.addApplicationNote(noteDialog.appId, noteDialog.note);
       setNoteDialog({ open: false, appId: null, note: '' });
+      success('Note added successfully');
       await load();
       setError('');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add note');
+      const errorMsg = err.response?.data?.message || 'Failed to add note';
+      setError(errorMsg);
+      showError(errorMsg);
     }
   };
 
@@ -81,59 +96,65 @@ const ApplicationManagement = () => {
         <strong>Admin Role:</strong> You can only manage non-technical applications. Technical roles are automatically handled by the bot system.
       </Alert>
 
-      <Paper variant="outlined">
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Job & Role Type</TableCell>
-              <TableCell>Applicant</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="center">Notes</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {applications.map(a => (
-              <TableRow key={a._id} hover>
-                <TableCell>
-                  <Stack>
-                    <Typography variant="body2">{a.jobId?.title}</Typography>
-                    <Chip 
-                      size="small" 
-                      label={a.jobId?.roleCategory || 'unknown'} 
-                      color={a.jobId?.roleCategory === 'technical' ? 'primary' : 'secondary'}
-                      variant="outlined"
-                    />
-                  </Stack>
-                </TableCell>
-                <TableCell>{a.applicantId?.username} ({a.applicantId?.email})</TableCell>
-                <TableCell><ApplicationStatus status={a.status} /></TableCell>
-                <TableCell align="center">
-                  <Button
-                    size="small"
-                    startIcon={<Comment />}
-                    onClick={() => setNoteDialog({ open: true, appId: a._id, note: '' })}
-                    variant="outlined"
-                  >
-                    Add Note
-                  </Button>
-                </TableCell>
-                <TableCell align="right">
-                  <Button
-                    size="small"
-                    startIcon={<Edit />}
-                    onClick={() => setStatusDialog({ open: true, appId: a._id, status: a.status, comment: '' })}
-                    variant="contained"
-                    color="primary"
-                  >
-                    Update Status
-                  </Button>
-                </TableCell>
+      {loading ? (
+        <SkeletonLoader variant="table" count={5} />
+      ) : (
+        <Paper variant="outlined">
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Job & Role Type</TableCell>
+                <TableCell>Applicant</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell align="center">Notes</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Paper>
+            </TableHead>
+            <TableBody>
+              {applications.map(a => (
+                <TableRow key={a._id} hover sx={{ '&:hover': { backgroundColor: 'action.hover' } }}>
+                  <TableCell>
+                    <Stack>
+                      <Typography variant="body2">{a.jobId?.title}</Typography>
+                      <Chip 
+                        size="small" 
+                        label={a.jobId?.roleCategory || 'unknown'} 
+                        color={a.jobId?.roleCategory === 'technical' ? 'primary' : 'secondary'}
+                        variant="outlined"
+                      />
+                    </Stack>
+                  </TableCell>
+                  <TableCell>{a.applicantId?.username} ({a.applicantId?.email})</TableCell>
+                  <TableCell><ApplicationStatus status={a.status} /></TableCell>
+                  <TableCell align="center">
+                    <AccessibleButton
+                      size="small"
+                      startIcon={<Comment />}
+                      onClick={() => setNoteDialog({ open: true, appId: a._id, note: '' })}
+                      variant="outlined"
+                      ariaLabel={`Add note to application for ${a.jobId?.title}`}
+                    >
+                      Add Note
+                    </AccessibleButton>
+                  </TableCell>
+                  <TableCell align="right">
+                    <AccessibleButton
+                      size="small"
+                      startIcon={<Edit />}
+                      onClick={() => setStatusDialog({ open: true, appId: a._id, status: a.status, comment: '' })}
+                      variant="contained"
+                      color="primary"
+                      ariaLabel={`Update status for application to ${a.jobId?.title}`}
+                    >
+                      Update Status
+                    </AccessibleButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Paper>
+      )}
 
       <Dialog open={noteDialog.open} onClose={() => setNoteDialog({ open: false, appId: null, note: '' })} maxWidth="sm" fullWidth>
         <DialogTitle>Add Note to Application</DialogTitle>
@@ -150,8 +171,8 @@ const ApplicationManagement = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setNoteDialog({ open: false, appId: null, note: '' })}>Cancel</Button>
-          <Button onClick={handleAddNote} variant="contained" disabled={!noteDialog.note.trim()}>Add Note</Button>
+          <AccessibleButton onClick={() => setNoteDialog({ open: false, appId: null, note: '' })} ariaLabel="Cancel adding note">Cancel</AccessibleButton>
+          <AccessibleButton onClick={handleAddNote} variant="contained" disabled={!noteDialog.note.trim()} ariaLabel="Confirm add note">Add Note</AccessibleButton>
         </DialogActions>
       </Dialog>
 
@@ -185,8 +206,8 @@ const ApplicationManagement = () => {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setStatusDialog({ open: false, appId: null, status: '', comment: '' })}>Cancel</Button>
-          <Button onClick={handleUpdateStatus} variant="contained" disabled={!statusDialog.status}>Update Status</Button>
+          <AccessibleButton onClick={() => setStatusDialog({ open: false, appId: null, status: '', comment: '' })} ariaLabel="Cancel status update">Cancel</AccessibleButton>
+          <AccessibleButton onClick={handleUpdateStatus} variant="contained" disabled={!statusDialog.status} ariaLabel="Confirm status update">Update Status</AccessibleButton>
         </DialogActions>
       </Dialog>
     </Box>
