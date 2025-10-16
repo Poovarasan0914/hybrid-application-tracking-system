@@ -43,6 +43,12 @@ export const applicationService = {
   addApplicationNote: async (id, note) => {
     const response = await api.post(API_ENDPOINTS.APPLICATIONS.ADD_NOTE(id), { note });
     return response.data;
+  },
+
+  // Get application timeline
+  getApplicationTimeline: async (id) => {
+    const response = await api.get(API_ENDPOINTS.APPLICATIONS.TIMELINE(id));
+    return response.data;
   }
 };
 

@@ -17,6 +17,7 @@ import JobDetailsPage from './pages/JobDetailsPage';
 import AdminPage from './pages/AdminPage';
 import BotPage from './pages/BotPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
+import ApplicationTracker from './components/applications/ApplicationTracker';
 
 // Create Material-UI theme
 const theme = createTheme({
@@ -56,6 +57,14 @@ function App() {
                   element={
                     <ProtectedRoute requiredRole="applicant">
                       <DashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/applications/:id/timeline" 
+                  element={
+                    <ProtectedRoute>
+                      <ApplicationTracker />
                     </ProtectedRoute>
                   } 
                 />

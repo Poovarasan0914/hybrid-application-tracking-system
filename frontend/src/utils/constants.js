@@ -43,6 +43,7 @@ export const API_ENDPOINTS = {
     MY_APPLICATIONS: '/applications/my-applications',
     ALL: '/applications/all',
     BY_ID: (id) => `/applications/${id}`,
+    TIMELINE: (id) => `/applications/${id}/timeline`,
     UPDATE_STATUS: (id) => `/applications/${id}/status`,
     ADD_NOTE: (id) => `/applications/${id}/notes`
   },

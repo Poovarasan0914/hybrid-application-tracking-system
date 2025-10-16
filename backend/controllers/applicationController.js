@@ -230,21 +230,33 @@ exports.updateApplicationStatus = async (req, res) => {
         application.status = status;
         await application.save();
 
-        // Add note about who updated it
+        // Add detailed note about who updated it
         const updateSource = isBot ? 'Bot System' : 'Admin';
         application.notes.push({
             text: `Status updated from ${oldStatus} to ${status} by ${updateSource}`,
-            addedBy: req.user._id
+            addedBy: req.user._id,
+            addedAt: new Date(),
+            processedBy: isBot ? 'bot' : 'admin',
+            actionType: 'status_change'
         });
         await application.save();
 
-        // Create audit log for status change
+        // Create detailed audit log for status change
         await createAuditLog({
             userId: req.user._id,
             action: 'APPLICATION_STATUS_CHANGE',
             resourceType: 'application',
             resourceId: application._id,
-            description: `${updateSource} updated ${application.jobId.title}: ${oldStatus} -> ${status}`
+            description: `${updateSource} updated ${application.jobId.title}: ${oldStatus} -> ${status}`,
+            details: {
+                oldStatus,
+                newStatus: status,
+                processedBy: isBot ? 'bot' : 'admin',
+                roleCategory: application.jobId.roleCategory,
+                timestamp: new Date(),
+                userId: req.user._id,
+                userName: req.user.username
+            }
         });
 
         res.json(application);
@@ -309,7 +321,7 @@ exports.getApplicationTimeline = async (req, res) => {
         // Get audit logs for this application
         const AuditLog = require('../models/AuditLog');
         const auditLogs = await AuditLog.find({ 
-            resourceType: 'APPLICATION',
+            resourceType: 'application',
             resourceId: application._id 
         })
         .populate('userId', 'username role')
@@ -335,8 +347,8 @@ exports.getApplicationTimeline = async (req, res) => {
                     type: 'status_change',
                     timestamp: log.timestamp,
                     title: 'Status Updated',
-                    description: log.details,
-                    user: log.userId.username,
+                    description: log.description || 'Status changed',
+                    user: log.userId ? log.userId.username : 'System',
                     status: 'updated'
                 });
             }

@@ -139,20 +139,30 @@ exports.autoProcessTechnical = async (req, res) => {
             app.status = randomOutcome;
             await app.save();
 
-            // Add automated note
+            // Add automated note with detailed info
             app.notes.push({
-                text: `🤖 Bot Auto-Processing: Technical role automatically processed with outcome: ${randomOutcome}`,
-                addedBy: req.user._id
+                text: `🤖 Bot Auto-Processing: Status changed from pending to ${randomOutcome} (Technical role - automated processing)`,
+                addedBy: req.user._id,
+                addedAt: new Date(),
+                processedBy: 'bot',
+                actionType: 'status_change'
             });
             await app.save();
 
-            // Create audit log
+            // Create detailed audit log
             await createAuditLog({
                 userId: req.user._id,
                 action: 'APPLICATION_STATUS_CHANGE',
                 resourceType: 'application',
                 resourceId: app._id,
-                description: `Bot auto-processed technical role: ${app.jobId.title} -> ${randomOutcome}`
+                description: `Bot auto-processed technical role: ${app.jobId.title} -> ${randomOutcome}`,
+                details: {
+                    oldStatus: 'pending',
+                    newStatus: randomOutcome,
+                    processedBy: 'bot',
+                    roleCategory: 'technical',
+                    timestamp: new Date()
+                }
             });
 
             updatedApplications.push(app);

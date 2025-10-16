@@ -1,37 +1,59 @@
-import { Card, CardContent, Typography, Grid, Stack, Button } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { applicationService } from '../../services/applicationService';
+import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, IconButton } from '@mui/material';
+import { Visibility } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import ApplicationStatus from './ApplicationStatus';
-import { formatDateTime } from '../../utils/helpers';
 
-const ApplicationList = ({ applications = [], onView }) => {
-  if (!applications.length) {
-    return <Typography color="text.secondary">No applications yet.</Typography>;
-  }
+const ApplicationList = () => {
+  const [applications, setApplications] = useState([]);
+  const navigate = useNavigate();
+
+  const load = async () => {
+    const data = await applicationService.getMyApplications();
+    setApplications(data || []);
+  };
+
+  useEffect(() => { load(); }, []);
 
   return (
-    <Grid container spacing={2}>
-      {applications.map(app => (
-        <Grid item xs={12} key={app._id}>
-          <Card variant="outlined">
-            <CardContent>
-              <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={2}>
-                <Stack>
-                  <Typography variant="h6">{app.jobId?.title}</Typography>
-                  <Typography variant="body2" color="text.secondary">{app.jobId?.department}</Typography>
-                  <Typography variant="body2" color="text.secondary">Submitted: {formatDateTime(app.submittedAt)}</Typography>
-                </Stack>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <ApplicationStatus status={app.status} />
-                  <Button size="small" onClick={() => onView?.(app._id)}>View</Button>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
+    <Box>
+      <Typography variant="h6" sx={{ mb: 2 }}>My Applications</Typography>
+
+      <Paper variant="outlined">
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Job Title</TableCell>
+              <TableCell>Department</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Applied Date</TableCell>
+              <TableCell align="right">Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {applications.map(a => (
+              <TableRow key={a._id} hover>
+                <TableCell>{a.jobId?.title}</TableCell>
+                <TableCell>{a.jobId?.department}</TableCell>
+                <TableCell><ApplicationStatus status={a.status} /></TableCell>
+                <TableCell>{new Date(a.submittedAt).toLocaleDateString()}</TableCell>
+                <TableCell align="right">
+                  <IconButton 
+                    size="small" 
+                    onClick={() => navigate(`/applications/${a._id}/timeline`)}
+                    title="View Timeline"
+                  >
+                    <Visibility />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+    </Box>
   );
 };
 
 export default ApplicationList;
-
-

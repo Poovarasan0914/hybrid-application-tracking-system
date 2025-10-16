@@ -42,7 +42,7 @@ const DashboardPage = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Paper variant="outlined" sx={{ p: 2 }}>
-              <ApplicationList applications={applications} onView={handleRefresh} />
+              <ApplicationList />
             </Paper>
           </Grid>
           <Grid item xs={12} md={4}>
