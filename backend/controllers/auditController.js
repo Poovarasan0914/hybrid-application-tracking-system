@@ -1,39 +1,20 @@
 const AuditLog = require('../models/AuditLog');
 
-// Get audit logs with filtering and pagination
+// Get audit logs (admin only)
 exports.getAuditLogs = async (req, res) => {
     try {
-        const {
-            action,
-            resourceType,
-            resourceId,
-            userId,
-            startDate,
-            endDate,
-            page = 1,
-            limit = 50
-        } = req.query;
-
-        // Build query
+        const { page = 1, limit = 20, action, resourceType, userId } = req.query;
         const query = {};
 
+        // Add filters if provided
         if (action) query.action = action;
         if (resourceType) query.resourceType = resourceType;
-        if (resourceId) query.resourceId = resourceId;
         if (userId) query.userId = userId;
 
-        // Date range filter
-        if (startDate || endDate) {
-            query.timestamp = {};
-            if (startDate) query.timestamp.$gte = new Date(startDate);
-            if (endDate) query.timestamp.$lte = new Date(endDate);
-        }
-
         // Pagination
-        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const skip = (page - 1) * limit;
 
-        // Execute query with population
-        const logs = await AuditLog.find(query)
+        const auditLogs = await AuditLog.find(query)
             .populate('userId', 'username email role')
             .sort({ timestamp: -1 })
             .skip(skip)
@@ -43,9 +24,9 @@ exports.getAuditLogs = async (req, res) => {
         const total = await AuditLog.countDocuments(query);
 
         res.json({
-            logs,
+            auditLogs,
             currentPage: parseInt(page),
-            totalPages: Math.ceil(total / parseInt(limit)),
+            totalPages: Math.ceil(total / limit),
             totalLogs: total
         });
     } catch (error) {
@@ -54,30 +35,25 @@ exports.getAuditLogs = async (req, res) => {
     }
 };
 
-// Create audit log entry (internal use)
-exports.createAuditLog = async (action, description, userId, resourceType, resourceId, req) => {
+// Create audit log (utility function)
+exports.createAuditLog = async (logData) => {
     try {
         const auditLog = new AuditLog({
-            action,
-            description,
-            userId,
-            resourceType,
-            resourceId,
-            ipAddress: req.ip,
-            userAgent: req.get('user-agent'),
-            details: {
-                method: req.method,
-                path: req.path,
-                query: req.query,
-                body: action.includes('PASSWORD') ? { ...req.body, password: '[REDACTED]' } : req.body
-            }
+            userId: logData.userId,
+            action: logData.action,
+            description: logData.description || logData.details,
+            details: logData.details || {},
+            ipAddress: logData.ipAddress,
+            userAgent: logData.userAgent,
+            resourceType: logData.resourceType,
+            resourceId: logData.resourceId
         });
 
         await auditLog.save();
         return auditLog;
     } catch (error) {
         console.error('Create audit log error:', error);
-        // Don't throw error to prevent disrupting main operations
+        // Don't throw error to avoid breaking the main operation
         return null;
     }
 };
