@@ -24,10 +24,10 @@ const HomePage = () => {
             <Button 
               variant="contained" 
               size="large" 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate(user?.role === 'admin' ? '/admin' : user?.role === 'bot' ? '/bot' : '/dashboard')}
               sx={{ mr: 2 }}
             >
-              Go to Dashboard
+              Go to {user?.role === 'admin' ? 'Admin' : user?.role === 'bot' ? 'Bot' : 'Dashboard'}
             </Button>
             <Button 
               variant="outlined" 

@@ -54,7 +54,7 @@ function App() {
                 <Route 
                   path="/dashboard" 
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="applicant">
                       <DashboardPage />
                     </ProtectedRoute>
                   } 

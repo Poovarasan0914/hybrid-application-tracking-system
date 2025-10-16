@@ -20,6 +20,7 @@ const jobValidation = [
     body('description').notEmpty().withMessage('Job description is required'),
     body('requirements').isArray().withMessage('Requirements must be an array')
         .notEmpty().withMessage('At least one requirement is required'),
+    body('roleCategory').isIn(['technical', 'non-technical']).withMessage('Role category must be technical or non-technical'),
     body('type').isIn(['full-time', 'part-time', 'contract', 'internship'])
         .withMessage('Invalid job type'),
     body('location').trim().notEmpty().withMessage('Location is required'),

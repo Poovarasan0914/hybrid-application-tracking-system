@@ -10,6 +10,7 @@ const emptyJob = {
   department: '',
   description: '',
   requirements: [],
+  roleCategory: 'technical',
   type: 'full-time',
   location: '',
   salary: { min: 0, max: 0, currency: 'USD' },
@@ -66,7 +67,8 @@ const JobManagement = () => {
             <TableRow>
               <TableCell>Title</TableCell>
               <TableCell>Department</TableCell>
-              <TableCell>Type</TableCell>
+              <TableCell>Employment</TableCell>
+              <TableCell>Role Category</TableCell>
               <TableCell>Location</TableCell>
               <TableCell>Deadline</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -78,6 +80,7 @@ const JobManagement = () => {
                 <TableCell>{j.title}</TableCell>
                 <TableCell>{j.department}</TableCell>
                 <TableCell>{j.type}</TableCell>
+                <TableCell>{j.roleCategory}</TableCell>
                 <TableCell>{j.location}</TableCell>
                 <TableCell>{(j.deadline || '').toString().slice(0, 10)}</TableCell>
                 <TableCell align="right">
@@ -98,6 +101,10 @@ const JobManagement = () => {
             <TextField label="Department" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} fullWidth />
             <TextField label="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} fullWidth multiline minRows={4} />
             <TextField label="Requirements (comma separated)" value={(form.requirements || []).join(', ')} onChange={e => setForm({ ...form, requirements: e.target.value.split(',').map(s => s.trim()) })} fullWidth />
+            <TextField select label="Role Category" value={form.roleCategory} onChange={e => setForm({ ...form, roleCategory: e.target.value })} fullWidth>
+              <MenuItem value="technical">Technical</MenuItem>
+              <MenuItem value="non-technical">Non-technical</MenuItem>
+            </TextField>
             <TextField select label="Type" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} fullWidth>
               <MenuItem value={JOB_TYPES.FULL_TIME}>Full-time</MenuItem>
               <MenuItem value={JOB_TYPES.PART_TIME}>Part-time</MenuItem>

@@ -27,7 +27,9 @@ const Header = () => {
           ) : (
             <>
               <Button color="inherit" component={RouterLink} to="/jobs">Jobs</Button>
-              <Button color="inherit" component={RouterLink} to="/dashboard">Dashboard</Button>
+              {user?.role === 'applicant' && (
+                <Button color="inherit" component={RouterLink} to="/dashboard">Dashboard</Button>
+              )}
               {user?.role === 'admin' && (
                 <Button color="inherit" component={RouterLink} to="/admin">Admin</Button>
               )}

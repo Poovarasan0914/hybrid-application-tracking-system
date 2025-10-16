@@ -16,8 +16,7 @@ const router = express.Router();
 // Validation middleware
 const applicationValidation = [
     body('jobId').isMongoId().withMessage('Valid job ID is required'),
-    body('coverLetter').notEmpty().withMessage('Cover letter is required')
-        .isLength({ min: 100 }).withMessage('Cover letter must be at least 100 characters long'),
+    body('coverLetter').optional().isString().withMessage('Cover letter must be a string'),
     body('documents').optional().isArray().withMessage('Documents must be an array'),
     body('documents.*.name').optional().notEmpty().withMessage('Document name is required'),
     body('documents.*.url').optional().isURL().withMessage('Valid document URL is required'),
@@ -35,7 +34,13 @@ const noteValidation = [
 ];
 
 // Application routes
-router.post('/applications', authenticate, applicationValidation, submitApplication);
+// Only applicants can submit applications
+router.post('/applications', authenticate, (req, res, next) => {
+    if (req.user.role !== 'applicant') {
+        return res.status(403).json({ message: 'Only applicants can submit applications' });
+    }
+    next();
+}, applicationValidation, submitApplication);
 router.get('/applications/my-applications', authenticate, getMyApplications);
 router.get('/applications/all', authenticate, isAdmin, getAllApplications);
 router.get('/applications/:id', authenticate, getApplicationById);

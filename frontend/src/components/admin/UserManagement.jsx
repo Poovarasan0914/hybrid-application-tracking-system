@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../../services/adminService';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Switch, Typography, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Switch, Typography, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, Stack } from '@mui/material';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [roleFilter, setRoleFilter] = useState('');
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ username: '', email: '', password: '' });
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await adminService.getAllUsers();
+      const params = {};
+      if (roleFilter) params.role = roleFilter;
+      const data = await adminService.getAllUsers(params);
       setUsers(data || []);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [roleFilter]);
 
   const handleToggle = async (userId, isActive) => {
     await adminService.toggleUserActivation(userId, isActive);
@@ -34,10 +37,21 @@ const UserManagement = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} sx={{ mb: 2 }} spacing={2}>
         <Typography variant="h6">Users</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>Create Bot User</Button>
-      </Box>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ xs: 'flex-start', sm: 'center' }}>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
+            <InputLabel id="role-filter-label">Filter by Role</InputLabel>
+            <Select labelId="role-filter-label" label="Filter by Role" value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="applicant">Applicant</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="bot">Bot</MenuItem>
+            </Select>
+          </FormControl>
+          <Button variant="contained" onClick={() => setOpen(true)}>Create Bot User</Button>
+        </Stack>
+      </Stack>
       <TableContainer component={Paper} variant="outlined">
         <Table size="small">
           <TableHead>

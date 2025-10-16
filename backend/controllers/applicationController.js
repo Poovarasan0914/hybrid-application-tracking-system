@@ -33,7 +33,7 @@ exports.submitApplication = async (req, res) => {
         const application = new Application({
             jobId,
             applicantId: req.user._id,
-            coverLetter,
+            coverLetter: coverLetter || '',
             documents: documents || []
         });
 
@@ -42,10 +42,10 @@ exports.submitApplication = async (req, res) => {
         // Create audit log for application submission
         await createAuditLog({
             userId: req.user._id,
-            action: 'SUBMIT',
-            resourceType: 'APPLICATION',
+            action: 'APPLICATION_SUBMIT',
+            resourceType: 'application',
             resourceId: application._id,
-            details: `Application submitted for job: ${job.title}`
+            description: `Application submitted for job: ${job.title}`
         });
 
         // Populate job and applicant details

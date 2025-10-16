@@ -8,7 +8,7 @@ exports.getDashboard = async (req, res) => {
         // Get pending applications
         const pendingApplications = await Application.find({ status: 'pending' })
             .populate([
-                { path: 'jobId', select: 'title department type' },
+                { path: 'jobId', select: 'title department type roleCategory' },
                 { path: 'applicantId', select: 'username email' }
             ])
             .sort({ createdAt: 1 }); // Process oldest first
@@ -68,18 +68,15 @@ exports.processApplications = async (req, res) => {
         for (const appId of applicationIds) {
             try {
                 const application = await Application.findById(appId)
-                    .populate('jobId', 'title department type');
+                    .populate('jobId', 'title department type roleCategory');
 
                 if (!application) {
                     errors.push({ appId, error: 'Application not found' });
                     continue;
                 }
 
-                // Check if it's a technical role
-                const isTechnical = application.jobId && 
-                    (application.jobId.department.toLowerCase().includes('engineering') ||
-                     application.jobId.department.toLowerCase().includes('technical') ||
-                     application.jobId.department.toLowerCase().includes('development'));
+                // Check if it's a technical role via roleCategory
+                const isTechnical = application.jobId && application.jobId.roleCategory === 'technical';
 
                 if (!isTechnical) {
                     errors.push({ appId, error: 'Not a technical role - bot cannot process' });

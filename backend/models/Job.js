@@ -19,6 +19,12 @@ const JobSchema = new mongoose.Schema({
         type: String,
         required: true
     }],
+    roleCategory: {
+        type: String,
+        enum: ['technical', 'non-technical'],
+        required: true,
+        default: 'technical'
+    },
     type: {
         type: String,
         required: true,

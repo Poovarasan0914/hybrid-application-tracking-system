@@ -13,7 +13,8 @@ const ApplicationSchema = new mongoose.Schema({
     },
     coverLetter: {
         type: String,
-        required: [true, 'Cover letter is required']
+        required: false,
+        default: ''
     },
     documents: [{
         name: {

@@ -4,8 +4,8 @@ import { API_ENDPOINTS } from '../utils/constants';
 // Admin service
 export const adminService = {
   // Get all users (admin only)
-  getAllUsers: async () => {
-    const response = await api.get(API_ENDPOINTS.ADMIN.USERS);
+  getAllUsers: async (params = {}) => {
+    const response = await api.get(API_ENDPOINTS.ADMIN.USERS, { params });
     return response.data;
   },
 

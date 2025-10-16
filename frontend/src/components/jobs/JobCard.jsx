@@ -21,6 +21,9 @@ const JobCard = ({ job }) => {
         <Stack direction="row" spacing={1} sx={{ mb: 1, flexWrap: 'wrap' }}>
           <Chip size="small" label={job.department} />
           <Chip size="small" label={job.type} color="info" />
+          {job.roleCategory && (
+            <Chip size="small" label={job.roleCategory === 'technical' ? 'Technical' : 'Non-technical'} color={job.roleCategory === 'technical' ? 'success' : 'warning'} />
+          )}
           {job.postedBy?.username && (
             <Chip size="small" label={`by ${job.postedBy.username}`} variant="outlined" />
           )}
