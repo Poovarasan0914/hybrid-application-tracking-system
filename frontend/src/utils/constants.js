@@ -27,25 +27,25 @@ export const ROLE_CATEGORIES = {
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    PROFILE: '/auth/profile'
+    LOGIN: '/api/auth/login',
+    REGISTER: '/api/auth/register',
+    PROFILE: '/api/auth/profile'
   },
   JOBS: {
-    ACTIVE: '/jobs/active',
-    BY_ID: (id) => `/jobs/${id}`,
-    CREATE: '/jobs',
-    UPDATE: (id) => `/jobs/${id}`,
-    DELETE: (id) => `/jobs/${id}`
+    ACTIVE: '/api/jobs/active',
+    BY_ID: (id) => `/api/jobs/${id}`,
+    CREATE: '/api/jobs',
+    UPDATE: (id) => `/api/jobs/${id}`,
+    DELETE: (id) => `/api/jobs/${id}`
   },
   APPLICATIONS: {
-    SUBMIT: '/applications',
-    MY_APPLICATIONS: '/applications/my-applications',
-    ALL: '/applications/all',
-    BY_ID: (id) => `/applications/${id}`,
-    TIMELINE: (id) => `/applications/${id}/timeline`,
-    UPDATE_STATUS: (id) => `/applications/${id}/status`,
-    ADD_NOTE: (id) => `/applications/${id}/notes`
+    SUBMIT: '/api/applications',
+    MY_APPLICATIONS: '/api/applications/my-applications',
+    ALL: '/api/applications/all',
+    BY_ID: (id) => `/api/applications/${id}`,
+    TIMELINE: (id) => `/api/applications/${id}/timeline`,
+    UPDATE_STATUS: (id) => `/api/applications/${id}/status`,
+    ADD_NOTE: (id) => `/api/applications/${id}/notes`
   },
   ADMIN: {
     USERS: '/admin/users',

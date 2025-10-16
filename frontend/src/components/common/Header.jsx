@@ -5,7 +5,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useState } from 'react';
 import AccessibleButton from './AccessibleButton';
-import NotificationCenter from './NotificationCenter';
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -56,8 +55,6 @@ const Header = () => {
               <Keyboard />
             </IconButton>
           </Tooltip>
-          
-          {isAuthenticated && <NotificationCenter />}
           
           <Tooltip title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}>
             <IconButton 
