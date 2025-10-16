@@ -36,6 +36,74 @@ exports.getActiveJobs = async (req, res) => {
     }
 };
 
+// Get technical jobs only
+exports.getTechnicalJobs = async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const query = { 
+            isActive: true,
+            $or: [
+                { department: { $regex: /engineering|technical|development|software|programming/i } },
+                { title: { $regex: /developer|engineer|programmer|technical/i } }
+            ]
+        };
+
+        const skip = (page - 1) * limit;
+
+        const jobs = await Job.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit))
+            .populate('postedBy', 'username');
+
+        const total = await Job.countDocuments(query);
+
+        res.json({
+            jobs,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(total / limit),
+            totalJobs: total
+        });
+    } catch (error) {
+        console.error('Get technical jobs error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Get non-technical jobs only
+exports.getNonTechnicalJobs = async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const query = { 
+            isActive: true,
+            $and: [
+                { department: { $not: { $regex: /engineering|technical|development|software|programming/i } } },
+                { title: { $not: { $regex: /developer|engineer|programmer|technical/i } } }
+            ]
+        };
+
+        const skip = (page - 1) * limit;
+
+        const jobs = await Job.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit))
+            .populate('postedBy', 'username');
+
+        const total = await Job.countDocuments(query);
+
+        res.json({
+            jobs,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(total / limit),
+            totalJobs: total
+        });
+    } catch (error) {
+        console.error('Get non-technical jobs error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 // Get specific job by ID
 exports.getJobById = async (req, res) => {
     try {

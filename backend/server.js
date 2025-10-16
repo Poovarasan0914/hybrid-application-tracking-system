@@ -10,6 +10,7 @@ const jobRoutes = require('./routes/jobRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 const botRoutes = require('./routes/botRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api', jobRoutes);
 app.use('/api', applicationRoutes);
 app.use('/api', auditRoutes);
 app.use('/api', botRoutes);
+app.use('/api', dashboardRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -206,3 +206,92 @@ exports.addApplicationNote = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+// Get application timeline/activity history
+exports.getApplicationTimeline = async (req, res) => {
+    try {
+        const application = await Application.findById(req.params.id)
+            .populate([
+                { path: 'jobId', select: 'title department' },
+                { path: 'applicantId', select: 'username email' },
+                { path: 'notes.addedBy', select: 'username role' }
+            ]);
+
+        if (!application) {
+            return res.status(404).json({ message: 'Application not found' });
+        }
+
+        // Check if user is authorized to view this application
+        if (req.user.role !== 'admin' && 
+            application.applicantId._id.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: 'Not authorized to view this application' });
+        }
+
+        // Get audit logs for this application
+        const AuditLog = require('../models/AuditLog');
+        const auditLogs = await AuditLog.find({ 
+            resourceType: 'APPLICATION',
+            resourceId: application._id 
+        })
+        .populate('userId', 'username role')
+        .sort({ timestamp: -1 });
+
+        // Create timeline events
+        const timeline = [];
+
+        // Add application submission event
+        timeline.push({
+            type: 'submission',
+            timestamp: application.submittedAt,
+            title: 'Application Submitted',
+            description: `Applied for ${application.jobId.title}`,
+            user: application.applicantId.username,
+            status: 'submitted'
+        });
+
+        // Add status change events from audit logs
+        auditLogs.forEach(log => {
+            if (log.action === 'APPLICATION_STATUS_CHANGE') {
+                timeline.push({
+                    type: 'status_change',
+                    timestamp: log.timestamp,
+                    title: 'Status Updated',
+                    description: log.details,
+                    user: log.userId.username,
+                    status: 'updated'
+                });
+            }
+        });
+
+        // Add note events
+        application.notes.forEach(note => {
+            timeline.push({
+                type: 'note',
+                timestamp: note.addedAt,
+                title: 'Note Added',
+                description: note.text,
+                user: note.addedBy.username,
+                status: 'commented'
+            });
+        });
+
+        // Sort timeline by timestamp
+        timeline.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        res.json({
+            application: {
+                id: application._id,
+                job: application.jobId,
+                applicant: application.applicantId,
+                status: application.status,
+                submittedAt: application.submittedAt,
+                lastUpdated: application.lastUpdated
+            },
+            timeline,
+            totalEvents: timeline.length
+        });
+    } catch (error) {
+        console.error('Get application timeline error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

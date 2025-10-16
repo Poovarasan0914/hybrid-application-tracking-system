@@ -6,6 +6,7 @@ const {
     getMyApplications,
     getAllApplications,
     getApplicationById,
+    getApplicationTimeline,
     updateApplicationStatus,
     addApplicationNote
 } = require('../controllers/applicationController');
@@ -38,6 +39,7 @@ router.post('/applications', authenticate, applicationValidation, submitApplicat
 router.get('/applications/my-applications', authenticate, getMyApplications);
 router.get('/applications/all', authenticate, isAdmin, getAllApplications);
 router.get('/applications/:id', authenticate, getApplicationById);
+router.get('/applications/:id/timeline', authenticate, getApplicationTimeline);
 router.put('/applications/:id/status', authenticate, isAdminOrBot, statusValidation, updateApplicationStatus);
 router.post('/applications/:id/notes', authenticate, isAdminOrBot, noteValidation, addApplicationNote);
 

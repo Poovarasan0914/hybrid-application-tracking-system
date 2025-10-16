@@ -3,6 +3,8 @@ const { body } = require('express-validator');
 const { authenticate, isAdmin } = require('../middleware/auth');
 const {
     getActiveJobs,
+    getTechnicalJobs,
+    getNonTechnicalJobs,
     getJobById,
     createJob,
     updateJob,
@@ -40,6 +42,8 @@ const jobValidation = [
 
 // Public routes
 router.get('/jobs/active', getActiveJobs);
+router.get('/jobs/technical', getTechnicalJobs);
+router.get('/jobs/non-technical', getNonTechnicalJobs);
 router.get('/jobs/:id', getJobById);
 
 // Admin routes
