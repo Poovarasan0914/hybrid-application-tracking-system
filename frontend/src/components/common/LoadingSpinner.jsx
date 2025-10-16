@@ -1,39 +1,67 @@
-import { Box, CircularProgress, Typography, LinearProgress } from '@mui/material';
-
-// Loading spinner component with customizable options
+// Loading spinner component without MUI
 const LoadingSpinner = ({ 
   size = 40, 
   message = 'Loading...', 
   variant = 'circular', 
   fullScreen = false,
-  color = 'primary'
+  color = '#1976d2'
 }) => {
-  const content = (
-    <Box 
-      display="flex" 
-      flexDirection="column"
-      alignItems="center" 
-      justifyContent="center"
-      gap={2}
-      sx={fullScreen ? { minHeight: '100vh' } : { py: 4 }}
-    >
+  const containerStyle = fullScreen 
+    ? { minHeight: '100vh', paddingTop: 0, paddingBottom: 0 } 
+    : { paddingTop: '16px', paddingBottom: '16px' };
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px',
+      ...containerStyle
+    }}>
       {variant === 'circular' ? (
-        <CircularProgress size={size} color={color} />
+        <div style={{
+          width: size,
+          height: size,
+          border: `${Math.max(2, Math.floor(size/10))}px solid rgba(0,0,0,0.1)`,
+          borderTopColor: color,
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }} />
       ) : (
-        <LinearProgress 
-          sx={{ width: '100%', maxWidth: 200 }} 
-          color={color}
-        />
+        <div style={{
+          width: '100%',
+          maxWidth: 200,
+          height: 4,
+          background: 'linear-gradient(90deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12))',
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: 2
+        }}>
+          <div style={{
+            position: 'absolute',
+            left: '-40%',
+            top: 0,
+            height: '100%',
+            width: '40%',
+            backgroundColor: color,
+            animation: 'indeterminate 1.4s infinite'
+          }} />
+        </div>
       )}
       {message && (
-        <Typography variant="body2" color="text.secondary">
-          {message}
-        </Typography>
+        <span style={{ color: '#666', fontSize: 12 }}>{message}</span>
       )}
-    </Box>
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes indeterminate {
+          0% { left: -40%; width: 40%; }
+          50% { left: 20%; width: 60%; }
+          100% { left: 100%; width: 80%; }
+        }
+      `}</style>
+    </div>
   );
-
-  return content;
 };
 
 export default LoadingSpinner;

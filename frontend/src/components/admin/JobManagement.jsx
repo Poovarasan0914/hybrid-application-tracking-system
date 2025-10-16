@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
 import { jobService } from '../../services/jobService';
-import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Stack, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, MenuItem } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import { JOB_TYPES } from '../../utils/constants';
 
 const emptyJob = {
@@ -22,6 +19,42 @@ const JobManagement = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyJob);
+
+  const commonStyles = {
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontSize: '14px'
+  };
+
+  const buttonStyle = {
+    ...commonStyles,
+    padding: '8px 16px',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500'
+  };
+
+  const primaryButton = {
+    ...buttonStyle,
+    backgroundColor: '#1976d2',
+    color: 'white'
+  };
+
+  const secondaryButton = {
+    ...buttonStyle,
+    backgroundColor: 'transparent',
+    color: '#1976d2',
+    border: '1px solid #1976d2'
+  };
+
+  const inputStyle = {
+    ...commonStyles,
+    width: '100%',
+    padding: '12px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
+    marginBottom: '16px'
+  };
 
   const load = async () => {
     const data = await jobService.getActiveJobs({ page: 1, limit: 50 });
@@ -55,80 +88,123 @@ const JobManagement = () => {
   };
 
   return (
-    <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="h6">Jobs</Typography>
-        <Button variant="contained" onClick={() => handleOpen()}>New Job</Button>
-      </Stack>
+    <div style={{ padding: '20px', ...commonStyles }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#333', margin: 0 }}>Jobs</h2>
+        <button onClick={() => handleOpen()} style={primaryButton}>New Job</button>
+      </div>
 
-      <TableContainer component={Paper} variant="outlined">
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Department</TableCell>
-              <TableCell>Employment</TableCell>
-              <TableCell>Role Category</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Deadline</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <div style={{ backgroundColor: 'white', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', ...commonStyles }}>
+          <thead>
+            <tr style={{ backgroundColor: '#f5f5f5' }}>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Title</th>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Department</th>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Employment</th>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Role Category</th>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Location</th>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Deadline</th>
+              <th style={{ padding: '12px', textAlign: 'right', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
             {jobs.map(j => (
-              <TableRow key={j._id} hover>
-                <TableCell>{j.title}</TableCell>
-                <TableCell>{j.department}</TableCell>
-                <TableCell>{j.type}</TableCell>
-                <TableCell>{j.roleCategory}</TableCell>
-                <TableCell>{j.location}</TableCell>
-                <TableCell>{(j.deadline || '').toString().slice(0, 10)}</TableCell>
-                <TableCell align="right">
-                  <IconButton size="small" onClick={() => handleOpen(j)}><EditIcon fontSize="small" /></IconButton>
-                  <IconButton size="small" color="error" onClick={() => handleDelete(j._id)}><DeleteIcon fontSize="small" /></IconButton>
-                </TableCell>
-              </TableRow>
+              <tr key={j._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
+                <td style={{ padding: '12px' }}>{j.title}</td>
+                <td style={{ padding: '12px' }}>{j.department}</td>
+                <td style={{ padding: '12px' }}>{j.type}</td>
+                <td style={{ padding: '12px' }}>{j.roleCategory}</td>
+                <td style={{ padding: '12px' }}>{j.location}</td>
+                <td style={{ padding: '12px' }}>{(j.deadline || '').toString().slice(0, 10)}</td>
+                <td style={{ padding: '12px', textAlign: 'right' }}>
+                  <button onClick={() => handleOpen(j)} style={{ ...secondaryButton, marginRight: '8px', padding: '4px 8px' }}>✏️ Edit</button>
+                  <button onClick={() => handleDelete(j._id)} style={{ ...primaryButton, backgroundColor: '#d32f2f', padding: '4px 8px' }}>🗑️ Delete</button>
+                </td>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </div>
 
-      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>{editing ? 'Edit Job' : 'New Job'}</DialogTitle>
-        <DialogContent dividers>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField label="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} fullWidth />
-            <TextField label="Department" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} fullWidth />
-            <TextField label="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} fullWidth multiline minRows={4} />
-            <TextField label="Requirements (comma separated)" value={(form.requirements || []).join(', ')} onChange={e => setForm({ ...form, requirements: e.target.value.split(',').map(s => s.trim()) })} fullWidth />
-            <TextField select label="Role Category" value={form.roleCategory} onChange={e => setForm({ ...form, roleCategory: e.target.value })} fullWidth>
-              <MenuItem value="technical">Technical</MenuItem>
-              <MenuItem value="non-technical">Non-technical</MenuItem>
-            </TextField>
-            <TextField select label="Type" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} fullWidth>
-              <MenuItem value={JOB_TYPES.FULL_TIME}>Full-time</MenuItem>
-              <MenuItem value={JOB_TYPES.PART_TIME}>Part-time</MenuItem>
-              <MenuItem value={JOB_TYPES.CONTRACT}>Contract</MenuItem>
-              <MenuItem value={JOB_TYPES.INTERNSHIP}>Internship</MenuItem>
-            </TextField>
-            <TextField label="Location" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} fullWidth />
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <TextField type="number" label="Salary Min" value={form.salary?.min || 0} onChange={e => setForm({ ...form, salary: { ...form.salary, min: Number(e.target.value) } })} fullWidth />
-              <TextField type="number" label="Salary Max" value={form.salary?.max || 0} onChange={e => setForm({ ...form, salary: { ...form.salary, max: Number(e.target.value) } })} fullWidth />
-              <TextField label="Currency" value={form.salary?.currency || 'USD'} onChange={e => setForm({ ...form, salary: { ...form.salary, currency: e.target.value } })} fullWidth />
-            </Stack>
-            <TextField type="date" label="Deadline" InputLabelProps={{ shrink: true }} value={(form.deadline || '').toString().slice(0, 10)} onChange={e => setForm({ ...form, deadline: e.target.value })} fullWidth />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>Save</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {open && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', width: '90%', maxWidth: '600px', maxHeight: '90vh', overflow: 'auto' }}>
+            <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600' }}>{editing ? 'Edit Job' : 'New Job'}</h3>
+            
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Title</label>
+              <input type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inputStyle} />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Department</label>
+              <input type="text" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })} style={inputStyle} />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Description</label>
+              <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={4} style={{ ...inputStyle, resize: 'vertical' }} />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Requirements (comma separated)</label>
+              <input type="text" value={(form.requirements || []).join(', ')} onChange={e => setForm({ ...form, requirements: e.target.value.split(',').map(s => s.trim()) })} style={inputStyle} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Role Category</label>
+                <select value={form.roleCategory} onChange={e => setForm({ ...form, roleCategory: e.target.value })} style={inputStyle}>
+                  <option value="technical">Technical</option>
+                  <option value="non-technical">Non-technical</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Type</label>
+                <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} style={inputStyle}>
+                  <option value={JOB_TYPES.FULL_TIME}>Full-time</option>
+                  <option value={JOB_TYPES.PART_TIME}>Part-time</option>
+                  <option value={JOB_TYPES.CONTRACT}>Contract</option>
+                  <option value={JOB_TYPES.INTERNSHIP}>Internship</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Location</label>
+              <input type="text" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} style={inputStyle} />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Salary Min</label>
+                <input type="number" value={form.salary?.min || 0} onChange={e => setForm({ ...form, salary: { ...form.salary, min: Number(e.target.value) } })} style={inputStyle} />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Salary Max</label>
+                <input type="number" value={form.salary?.max || 0} onChange={e => setForm({ ...form, salary: { ...form.salary, max: Number(e.target.value) } })} style={inputStyle} />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Currency</label>
+                <input type="text" value={form.salary?.currency || 'USD'} onChange={e => setForm({ ...form, salary: { ...form.salary, currency: e.target.value } })} style={inputStyle} />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Deadline</label>
+              <input type="date" value={(form.deadline || '').toString().slice(0, 10)} onChange={e => setForm({ ...form, deadline: e.target.value })} style={inputStyle} />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button onClick={handleClose} style={secondaryButton}>Cancel</button>
+              <button onClick={handleSave} style={primaryButton}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
 export default JobManagement;
-
-

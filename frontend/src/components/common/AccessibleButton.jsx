@@ -1,4 +1,3 @@
-import { Button, Tooltip } from '@mui/material';
 import { forwardRef } from 'react';
 
 const AccessibleButton = forwardRef(({ 
@@ -9,22 +8,38 @@ const AccessibleButton = forwardRef(({
   loading,
   ...props 
 }, ref) => {
+  const baseStyle = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '6px 12px',
+    fontSize: '0.875rem',
+    borderRadius: 4,
+    border: '1px solid #ccc',
+    backgroundColor: '#fff',
+    color: '#222',
+    cursor: disabled || loading ? 'not-allowed' : 'pointer',
+    opacity: disabled || loading ? 0.6 : 1,
+    transition: 'background-color 150ms ease, box-shadow 150ms ease',
+  };
+
   const button = (
-    <Button
+    <button
       ref={ref}
       disabled={disabled || loading}
       aria-label={ariaLabel || (typeof children === 'string' ? children : undefined)}
       aria-busy={loading}
+      style={baseStyle}
       {...props}
     >
       {loading ? 'Loading...' : children}
-    </Button>
+    </button>
   );
 
   return tooltip ? (
-    <Tooltip title={tooltip} arrow>
-      <span>{button}</span>
-    </Tooltip>
+    <span style={{ position: 'relative', display: 'inline-block' }} title={tooltip}>
+      {button}
+    </span>
   ) : button;
 });
 

@@ -4,7 +4,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { applicationSchema } from '../../utils/validators';
 import { jobService } from '../../services/jobService';
 import { applicationService } from '../../services/applicationService';
-import { Box, Stack, TextField, Button, MenuItem, Alert, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { useAuth } from '../../context/AuthContext';
 import UserProfile from '../profile/UserProfile';
 
@@ -68,58 +67,60 @@ const ApplicationForm = ({ onSubmitted }) => {
 
   return (
     <>
-      <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {error && <div style={{ marginBottom: 8, padding: '8px 12px', background: '#fde7e9', color: '#7a1320', border: '1px solid #f8c7cf', borderRadius: 6 }}>{error}</div>}
+        {success && <div style={{ marginBottom: 8, padding: '8px 12px', background: '#e6f4ea', color: '#0f5132', border: '1px solid #badbcc', borderRadius: 6 }}>{success}</div>}
         {!isProfileComplete() && (
-          <Alert severity="warning" sx={{ mb: 2 }}>
+          <div style={{ marginBottom: 8, padding: '8px 12px', background: '#fff3cd', color: '#6c4a00', border: '1px solid #ffecb5', borderRadius: 6 }}>
             Please complete your profile before applying for jobs.
-          </Alert>
+          </div>
         )}
 
-        <Stack spacing={2}>
-          <TextField
-            select
-            label="Select Job"
-            fullWidth
-            {...register('jobId')}
-            error={!!errors.jobId}
-            helperText={errors.jobId?.message}
-          >
-            {jobs.map((j) => (
-              <MenuItem key={j._id} value={j._id}>{j.title} — {j.department}</MenuItem>
-            ))}
-          </TextField>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label htmlFor="jobId" style={{ display: 'block', marginBottom: 6, fontSize: 14 }}>Select Job</label>
+            <select id="jobId" style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #ccc' }} {...register('jobId')}> 
+              <option value="">-- Select --</option>
+              {jobs.map((j) => (
+                <option key={j._id} value={j._id}>{j.title} — {j.department}</option>
+              ))}
+            </select>
+            {errors.jobId && <div style={{ color: '#b3261e', fontSize: 12, marginTop: 4 }}>{errors.jobId.message}</div>}
+          </div>
 
-          <TextField
-            label="Cover Letter"
-            fullWidth
-            multiline
-            minRows={6}
-            {...register('coverLetter')}
-            error={!!errors.coverLetter}
-            helperText={errors.coverLetter?.message}
-          />
+          <div>
+            <label htmlFor="coverLetter" style={{ display: 'block', marginBottom: 6, fontSize: 14 }}>Cover Letter</label>
+            <textarea id="coverLetter" rows={6} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #ccc', resize: 'vertical' }} {...register('coverLetter')} />
+            {errors.coverLetter && <div style={{ color: '#b3261e', fontSize: 12, marginTop: 4 }}>{errors.coverLetter.message}</div>}
+          </div>
 
-          <Stack direction="row" spacing={2}>
-            <Button type="submit" variant="contained" disabled={loading}>{loading ? 'Submitting...' : 'Submit Application'}</Button>
-            <Button type="button" variant="text" onClick={() => reset()}>Reset</Button>
-          </Stack>
-        </Stack>
-      </Box>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button type="submit" disabled={loading} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #1976d2', background: '#1976d2', color: '#fff', cursor: 'pointer' }}>
+              {loading ? 'Submitting...' : 'Submit Application'}
+            </button>
+            <button type="button" onClick={() => reset()} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>
+              Reset
+            </button>
+          </div>
+        </div>
+      </form>
 
-      <Dialog open={showProfileDialog} onClose={() => setShowProfileDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Complete Your Profile</DialogTitle>
-        <DialogContent>
-          <Alert severity="info" sx={{ mb: 2 }}>
-            You need to complete your profile before applying for jobs. Please fill in the required fields below.
-          </Alert>
-          <UserProfile />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowProfileDialog(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      {showProfileDialog && (
+        <div role="dialog" aria-modal="true" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div style={{ background: '#fff', width: '100%', maxWidth: 800, borderRadius: 8, overflow: 'hidden' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid #eee', fontWeight: 600 }}>Complete Your Profile</div>
+            <div style={{ padding: 16 }}>
+              <div style={{ marginBottom: 12, padding: '8px 12px', background: '#e7f1ff', color: '#113a76', border: '1px solid #cfe2ff', borderRadius: 6 }}>
+                You need to complete your profile before applying for jobs. Please fill in the required fields below.
+              </div>
+              <UserProfile />
+            </div>
+            <div style={{ padding: 12, borderTop: '1px solid #eee', display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowProfileDialog(false)} style={{ padding: '8px 12px', borderRadius: 6, border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

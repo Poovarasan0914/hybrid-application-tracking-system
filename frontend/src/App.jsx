@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { CssBaseline, Box } from '@mui/material';
+
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './components/common/Toast';
@@ -25,7 +25,7 @@ const AppContent = () => {
   useKeyboardShortcuts();
   
   return (
-    <Box sx={{ minHeight: '100vh' }}>
+    <div style={{ minHeight: '100vh' }}>
       <Header />
       <Routes>
         {/* Public routes */}
@@ -77,7 +77,7 @@ const AppContent = () => {
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </Box>
+    </div>
   );
 };
 
@@ -85,7 +85,7 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <CssBaseline />
+
         <ToastProvider>
           <AuthProvider>
             <Router>

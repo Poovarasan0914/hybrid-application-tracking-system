@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { applicationService } from '../../services/applicationService';
-import { Box, Typography, Paper, Card, CardContent, Chip, Stack, Alert, List, ListItem, ListItemText, Avatar } from '@mui/material';
 import { formatDateTime } from '../../utils/helpers';
 import ApplicationStatus from './ApplicationStatus';
 
@@ -28,68 +27,58 @@ const ApplicationTracker = () => {
     if (id) loadTimeline();
   }, [id]);
 
-  if (loading) return <Typography>Loading...</Typography>;
-  if (error) return <Alert severity="error">{error}</Alert>;
-  if (!timeline) return <Alert severity="warning">Application not found</Alert>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div style={{ padding: '8px 12px', background: '#fde7e9', color: '#7a1320', border: '1px solid #f8c7cf', borderRadius: 6 }}>{error}</div>;
+  if (!timeline) return <div style={{ padding: '8px 12px', background: '#fff3cd', color: '#6c4a00', border: '1px solid #ffecb5', borderRadius: 6 }}>Application not found</div>;
 
   const { application, timeline: events } = timeline;
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-          <Typography variant="h5">{application.job.title}</Typography>
+    <div style={{ padding: 16 }}>
+      <div style={{ padding: 16, marginBottom: 16, border: '1px solid #e0e0e0', borderRadius: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <h3 style={{ margin: 0 }}>{application.job.title}</h3>
           <ApplicationStatus status={application.status} />
-        </Stack>
-        <Typography variant="body2" color="text.secondary">
+        </div>
+        <div style={{ color: '#666', fontSize: 12 }}>
           Applied: {formatDateTime(application.submittedAt)} | Last Updated: {formatDateTime(application.lastUpdated)}
-        </Typography>
-        <Chip 
-          label={application.job.roleCategory || 'Unknown'} 
-          color={application.job.roleCategory === 'technical' ? 'primary' : 'secondary'}
-          size="small"
-          sx={{ mt: 1 }}
-        />
-      </Paper>
+        </div>
+        <div style={{ display: 'inline-block', marginTop: 6, padding: '2px 8px', fontSize: 12, borderRadius: 9999, background: '#e7f1ff', color: '#113a76', border: '1px solid #cfe2ff' }}>
+          {application.job.roleCategory || 'Unknown'}
+        </div>
+      </div>
 
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Application Timeline</Typography>
-        <List>
+      <div style={{ padding: 16, border: '1px solid #e0e0e0', borderRadius: 8 }}>
+        <h4 style={{ margin: '0 0 8px 0' }}>Application Timeline</h4>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {events.map((event, index) => (
-            <ListItem key={index} alignItems="flex-start">
-              <Avatar sx={{ 
-                bgcolor: event.type === 'submission' ? 'primary.main' :
-                        event.type === 'status_change' ? 'success.main' : 'info.main',
-                mr: 2, mt: 1
+            <li key={index} style={{ display: 'flex', gap: 12, padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+              <div style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: event.type === 'submission' ? '#e7f1ff' : event.type === 'status_change' ? '#e8f5e9' : '#e3f2fd'
               }}>
-                {event.type === 'submission' ? '📝' :
-                 event.type === 'status_change' ? '🔄' : '💬'}
-              </Avatar>
-              <ListItemText
-                primary={
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography variant="subtitle2">{event.title}</Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatDateTime(event.timestamp)}
-                    </Typography>
-                  </Stack>
-                }
-                secondary={
-                  <Box>
-                    <Typography variant="body2" sx={{ mt: 1 }}>
-                      {event.description}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      by {event.user}
-                    </Typography>
-                  </Box>
-                }
-              />
-            </ListItem>
+                <span style={{ fontSize: 16 }}>
+                  {event.type === 'submission' ? '📝' : event.type === 'status_change' ? '🔄' : '💬'}
+                </span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <strong style={{ fontSize: 13 }}>{event.title}</strong>
+                  <span style={{ color: '#777', fontSize: 11 }}>{formatDateTime(event.timestamp)}</span>
+                </div>
+                <div style={{ marginTop: 4, fontSize: 13 }}>{event.description}</div>
+                <div style={{ color: '#777', fontSize: 11 }}>by {event.user}</div>
+              </div>
+            </li>
           ))}
-        </List>
-      </Paper>
-    </Box>
+        </ul>
+      </div>
+    </div>
   );
 };
 

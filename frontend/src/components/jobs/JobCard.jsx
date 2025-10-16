@@ -1,7 +1,4 @@
-import { Card, CardContent, CardActions, Typography, Chip, Stack, Button, Box } from '@mui/material';
-import WorkOutlineIcon from '@mui/icons-material/WorkOutline';
-import PlaceIcon from '@mui/icons-material/Place';
-import PaidIcon from '@mui/icons-material/Paid';
+
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency, formatDate } from '../../utils/helpers';
 
@@ -9,54 +6,94 @@ const JobCard = ({ job }) => {
   const navigate = useNavigate();
 
   return (
-    <Card variant="outlined" sx={{ height: '100%' }}>
-      <CardContent>
-        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-          <WorkOutlineIcon color="primary" />
-          <Typography variant="h6" component="div">
+    <div style={{
+      height: '100%',
+      border: '1px solid #e0e0e0',
+      borderRadius: '8px',
+      backgroundColor: '#ffffff',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <div style={{ padding: '16px', flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <span style={{ color: '#1976d2' }}>💼</span>
+          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '500' }}>
             {job.title}
-          </Typography>
-        </Stack>
+          </h3>
+        </div>
 
-        <Stack direction="row" spacing={1} sx={{ mb: 1, flexWrap: 'wrap' }}>
-          <Chip size="small" label={job.department} />
-          <Chip size="small" label={job.type} color="info" />
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+          <span style={{ padding: '4px 8px', backgroundColor: '#e3f2fd', borderRadius: '16px', fontSize: '0.75rem' }}>
+            {job.department}
+          </span>
+          <span style={{ padding: '4px 8px', backgroundColor: '#e1f5fe', borderRadius: '16px', fontSize: '0.75rem' }}>
+            {job.type}
+          </span>
           {job.roleCategory && (
-            <Chip size="small" label={job.roleCategory === 'technical' ? 'Technical' : 'Non-technical'} color={job.roleCategory === 'technical' ? 'success' : 'warning'} />
+            <span style={{ 
+              padding: '4px 8px', 
+              backgroundColor: job.roleCategory === 'technical' ? '#e8f5e8' : '#fff3e0', 
+              borderRadius: '16px', 
+              fontSize: '0.75rem' 
+            }}>
+              {job.roleCategory === 'technical' ? 'Technical' : 'Non-technical'}
+            </span>
           )}
           {job.postedBy?.username && (
-            <Chip size="small" label={`by ${job.postedBy.username}`} variant="outlined" />
+            <span style={{ padding: '4px 8px', border: '1px solid #e0e0e0', borderRadius: '16px', fontSize: '0.75rem' }}>
+              by {job.postedBy.username}
+            </span>
           )}
-        </Stack>
+        </div>
 
-        <Stack direction="row" spacing={2} sx={{ mb: 1 }}>
-          <Stack direction="row" spacing={0.5} alignItems="center">
-            <PlaceIcon fontSize="small" />
-            <Typography variant="body2">{job.location}</Typography>
-          </Stack>
-          <Stack direction="row" spacing={0.5} alignItems="center">
-            <PaidIcon fontSize="small" />
-            <Typography variant="body2">
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span>📍</span>
+            <span style={{ fontSize: '0.875rem' }}>{job.location}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span>💰</span>
+            <span style={{ fontSize: '0.875rem' }}>
               {formatCurrency(job.salary?.min, job.salary?.currency)} - {formatCurrency(job.salary?.max, job.salary?.currency)}
-            </Typography>
-          </Stack>
-        </Stack>
+            </span>
+          </div>
+        </div>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        <p style={{ fontSize: '0.875rem', color: '#666', marginBottom: '8px' }}>
           Deadline: {formatDate(job.deadline)}
-        </Typography>
+        </p>
 
-        <Typography variant="body2" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <p style={{ 
+          fontSize: '0.875rem', 
+          color: '#666', 
+          display: '-webkit-box', 
+          WebkitLineClamp: 3, 
+          WebkitBoxOrient: 'vertical', 
+          overflow: 'hidden',
+          margin: 0
+        }}>
           {job.description}
-        </Typography>
-      </CardContent>
-      <CardActions sx={{ px: 2, pb: 2 }}>
-        <Box sx={{ flexGrow: 1 }} />
-        <Button size="small" variant="contained" onClick={() => navigate(`/jobs/${job._id}`)}>
+        </p>
+      </div>
+      <div style={{ padding: '0 16px 16px', display: 'flex', justifyContent: 'flex-end' }}>
+        <button 
+          onClick={() => navigate(`/jobs/${job._id}`)}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#1976d2',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '0.875rem'
+          }}
+          onMouseOver={(e) => e.target.style.backgroundColor = '#1565c0'}
+          onMouseOut={(e) => e.target.style.backgroundColor = '#1976d2'}
+        >
           View details
-        </Button>
-      </CardActions>
-    </Card>
+        </button>
+      </div>
+    </div>
   );
 };
 

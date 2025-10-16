@@ -1,5 +1,3 @@
-import { Card, CardContent, Typography, Grid } from '@mui/material';
-
 const BotStats = ({ stats = [] }) => {
   const counts = stats.reduce((acc, s) => { acc[s._id] = s.count; return acc; }, {});
 
@@ -12,18 +10,14 @@ const BotStats = ({ stats = [] }) => {
   ];
 
   return (
-    <Grid container spacing={2}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
       {items.map(item => (
-        <Grid item xs={6} sm={4} md={2.4} key={item.key}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="subtitle2" color="text.secondary">{item.label}</Typography>
-              <Typography variant="h5">{counts[item.key] || 0}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        <div key={item.key} style={{ border: '1px solid #e0e0e0', borderRadius: 8, padding: 12 }}>
+          <div style={{ color: '#777', fontSize: 12 }}>{item.label}</div>
+          <div style={{ fontSize: 20, fontWeight: 700 }}>{counts[item.key] || 0}</div>
+        </div>
       ))}
-    </Grid>
+    </div>
   );
 };
 

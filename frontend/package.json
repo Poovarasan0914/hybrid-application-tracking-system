@@ -10,11 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "@hookform/resolvers": "^5.2.2",
-    "@mui/icons-material": "^7.3.4",
-    "@mui/material": "^7.3.4",
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "react": "^19.1.1",

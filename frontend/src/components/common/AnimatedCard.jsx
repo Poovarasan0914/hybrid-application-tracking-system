@@ -1,5 +1,4 @@
-import { Card, Fade, Grow, Slide } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const AnimatedCard = ({ 
   children, 
@@ -10,46 +9,65 @@ const AnimatedCard = ({
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
-  const cardStyle = {
+  const baseStyle = {
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    ...(hover && {
-      '&:hover': {
-        transform: 'translateY(-4px) scale(1.02)',
-        boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
-      },
-    }),
+    border: '1px solid #e0e0e0',
+    borderRadius: 8,
+    padding: 12,
+    background: '#fff'
   };
 
-  const renderAnimation = () => {
-    const cardElement = (
-      <Card sx={cardStyle} {...props}>
-        {children}
-      </Card>
-    );
+  const ref = useRef(null);
 
-    switch (animation) {
-      case 'grow':
-        return (
-          <Grow in={isVisible} timeout={600} style={{ transitionDelay: `${delay}ms` }}>
-            {cardElement}
-          </Grow>
-        );
-      case 'slide':
-        return (
-          <Slide in={isVisible} direction="up" timeout={600} style={{ transitionDelay: `${delay}ms` }}>
-            {cardElement}
-          </Slide>
-        );
-      default:
-        return (
-          <Fade in={isVisible} timeout={600} style={{ transitionDelay: `${delay}ms` }}>
-            {cardElement}
-          </Fade>
-        );
+  useEffect(() => {
+    if (!ref.current) return;
+    if (animation === 'grow') {
+      ref.current.style.transform = 'scale(0.95)';
+      ref.current.style.opacity = '0';
+      setTimeout(() => {
+        if (ref.current) {
+          ref.current.style.transform = 'scale(1)';
+          ref.current.style.opacity = '1';
+        }
+      }, delay);
+    } else if (animation === 'slide') {
+      ref.current.style.transform = 'translateY(12px)';
+      ref.current.style.opacity = '0';
+      setTimeout(() => {
+        if (ref.current) {
+          ref.current.style.transform = 'translateY(0)';
+          ref.current.style.opacity = '1';
+        }
+      }, delay);
+    } else {
+      ref.current.style.opacity = '0';
+      setTimeout(() => {
+        if (ref.current) {
+          ref.current.style.opacity = '1';
+        }
+      }, delay);
     }
-  };
+  }, [animation, delay]);
 
-  return renderAnimation();
+  return (
+    <div
+      ref={ref}
+      style={baseStyle}
+      onMouseEnter={(e) => {
+        if (!hover) return;
+        e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+        e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
+      }}
+      onMouseLeave={(e) => {
+        if (!hover) return;
+        e.currentTarget.style.transform = 'none';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
+      {...props}
+    >
+      {children}
+    </div>
+  );
 };
 
 export default AnimatedCard;

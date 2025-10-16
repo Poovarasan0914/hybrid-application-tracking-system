@@ -4,15 +4,13 @@ import { useEffect, useState } from 'react';
 // Service layer for admin-related API calls
 import { adminService } from '../../services/adminService';
 
-// Material-UI components for responsive layout and design
-import { Box, Typography, Grid, Paper, Card, CardContent, Stack, Chip } from '@mui/material';
+
 
 // Recharts library for interactive data visualization
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // Custom components for enhanced UX
-import SkeletonLoader from '../common/SkeletonLoader';  // Loading state component
-import AnimatedCard from '../common/AnimatedCard';      // Animated card wrapper
+import LoadingSpinner from '../common/LoadingSpinner';  // Loading state component
 import { useToast } from '../common/Toast';             // Toast notification system
 
 /**
@@ -47,8 +45,8 @@ const AdminDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Remove success and error from dependencies to prevent unnecessary re-renders
 
-  if (loading) return <SkeletonLoader variant="dashboard" />;
-  if (!dashboardData) return <Typography>Failed to load dashboard data</Typography>;
+  if (loading) return <LoadingSpinner />;
+  if (!dashboardData) return <div style={{ padding: '20px', fontSize: '16px', color: '#666' }}>Failed to load dashboard data</div>;
 
   const statusData = Object.entries(dashboardData.applicationStats || {}).map(([status, count]) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
@@ -62,107 +60,115 @@ const AdminDashboard = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
+  const cardStyle = {
+    backgroundColor: '#ffffff',
+    borderRadius: '8px',
+    padding: '20px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    border: '1px solid #e0e0e0'
+  };
+
+  const titleStyle = {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#333',
+    margin: '0 0 16px 0',
+    fontFamily: 'Arial, sans-serif'
+  };
+
+  const numberStyle = {
+    fontSize: '32px',
+    fontWeight: '700',
+    margin: '0 0 8px 0',
+    fontFamily: 'Arial, sans-serif'
+  };
+
+  const labelStyle = {
+    fontSize: '14px',
+    color: '#666',
+    margin: '0',
+    fontFamily: 'Arial, sans-serif'
+  };
+
   return (
-    <Box>
-      <Typography variant="h5" sx={{ mb: 3 }}>Admin Dashboard</Typography>
+    <div style={{ padding: '20px', fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <h1 style={{ fontSize: '24px', fontWeight: '600', color: '#333', marginBottom: '24px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Admin Dashboard</h1>
       
       {/* Key Metrics */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <AnimatedCard delay={0}>
-            <CardContent>
-              <Typography variant="h4" color="primary">{dashboardData.totalApplications || 0}</Typography>
-              <Typography variant="body2" color="text.secondary">Total Applications</Typography>
-            </CardContent>
-          </AnimatedCard>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <AnimatedCard delay={100}>
-            <CardContent>
-              <Typography variant="h4" color="success.main">{dashboardData.totalJobs || 0}</Typography>
-              <Typography variant="body2" color="text.secondary">Active Jobs</Typography>
-            </CardContent>
-          </AnimatedCard>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <AnimatedCard delay={200}>
-            <CardContent>
-              <Typography variant="h4" color="info.main">{dashboardData.recentApplications || 0}</Typography>
-              <Typography variant="body2" color="text.secondary">Recent Applications (7 days)</Typography>
-            </CardContent>
-          </AnimatedCard>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <AnimatedCard delay={300}>
-            <CardContent>
-              <Typography variant="h4" color="warning.main">{dashboardData.activeUsers || 0}</Typography>
-              <Typography variant="body2" color="text.secondary">Active Users</Typography>
-            </CardContent>
-          </AnimatedCard>
-        </Grid>
-      </Grid>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+        <div style={cardStyle}>
+          <div style={{ ...numberStyle, color: '#1976d2' }}>{dashboardData.totalApplications || 0}</div>
+          <div style={labelStyle}>Total Applications</div>
+        </div>
+        <div style={cardStyle}>
+          <div style={{ ...numberStyle, color: '#2e7d32' }}>{dashboardData.totalJobs || 0}</div>
+          <div style={labelStyle}>Active Jobs</div>
+        </div>
+        <div style={cardStyle}>
+          <div style={{ ...numberStyle, color: '#0288d1' }}>{dashboardData.recentApplications || 0}</div>
+          <div style={labelStyle}>Recent Applications (7 days)</div>
+        </div>
+        <div style={cardStyle}>
+          <div style={{ ...numberStyle, color: '#f57c00' }}>{dashboardData.activeUsers || 0}</div>
+          <div style={labelStyle}>Active Users</div>
+        </div>
+      </div>
 
       {/* Charts */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <AnimatedCard animation="slide" delay={400}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Application Status Distribution</Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </Paper>
-          </AnimatedCard>
-        </Grid>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px' }}>
+        <div style={cardStyle}>
+          <h3 style={titleStyle}>Application Status Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={statusData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {statusData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
 
-        <Grid item xs={12} md={6}>
-          <AnimatedCard animation="slide" delay={500}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Applications by Department</Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={departmentData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="applications" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Paper>
-          </AnimatedCard>
-        </Grid>
-      </Grid>
+        <div style={cardStyle}>
+          <h3 style={titleStyle}>Applications by Department</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={departmentData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="applications" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
       {/* Admin Info */}
-      <AnimatedCard animation="grow" delay={600} sx={{ mt: 3 }}>
-        <Paper sx={{ p: 2 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>Admin Information</Typography>
-          <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-            <Chip label={`Admin: ${dashboardData.adminInfo?.name}`} color="primary" />
-            <Chip label="Manages: Non-Technical Roles" color="secondary" />
-            <Typography variant="body2" color="text.secondary">
-              Last Access: {new Date(dashboardData.adminInfo?.lastAccess).toLocaleString()}
-            </Typography>
-          </Stack>
-        </Paper>
-      </AnimatedCard>
-    </Box>
+      <div style={{ ...cardStyle, marginTop: '24px' }}>
+        <h3 style={titleStyle}>Admin Information</h3>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ padding: '6px 12px', backgroundColor: '#1976d2', color: 'white', borderRadius: '16px', fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>
+            Admin: {dashboardData.adminInfo?.name}
+          </span>
+          <span style={{ padding: '6px 12px', backgroundColor: '#9c27b0', color: 'white', borderRadius: '16px', fontSize: '14px', fontFamily: 'Arial, sans-serif' }}>
+            Manages: Non-Technical Roles
+          </span>
+          <span style={{ fontSize: '14px', color: '#666', fontFamily: 'Arial, sans-serif' }}>
+            Last Access: {new Date(dashboardData.adminInfo?.lastAccess).toLocaleString()}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 };
 

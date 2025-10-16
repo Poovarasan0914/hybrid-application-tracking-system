@@ -1,6 +1,4 @@
 import React from 'react';
-import { Box, Typography, Button, Container } from '@mui/material';
-import { ErrorOutline, Refresh } from '@mui/icons-material';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -31,48 +29,41 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <Container maxWidth="sm">
-          <Box 
-            display="flex" 
-            flexDirection="column" 
-            alignItems="center" 
-            justifyContent="center" 
-            minHeight="100vh"
-            textAlign="center"
-            gap={3}
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <div 
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '100vh',
+              textAlign: 'center',
+              gap: 12,
+              padding: 16
+            }}
           >
-            <ErrorOutline sx={{ fontSize: 80, color: 'error.main' }} />
-            <Typography variant="h4" component="h1" gutterBottom>
-              Oops! Something went wrong
-            </Typography>
-            <Typography variant="body1" color="text.secondary" paragraph>
+            <div style={{ fontSize: 64 }}>⚠️</div>
+            <h1 style={{ margin: 0 }}>Oops! Something went wrong</h1>
+            <p style={{ color: '#666' }}>
               We're sorry, but something unexpected happened. Please try refreshing the page.
-            </Typography>
-            <Button 
-              variant="contained" 
-              startIcon={<Refresh />}
+            </p>
+            <button 
               onClick={this.handleRetry}
-              size="large"
+              style={{ padding: '10px 16px', borderRadius: 6, border: '1px solid #1976d2', background: '#1976d2', color: '#fff', cursor: 'pointer', fontSize: 14 }}
             >
               Try Again
-            </Button>
+            </button>
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.100', borderRadius: 1, textAlign: 'left' }}>
-                <Typography variant="h6" color="error">
-                  Error Details (Development Mode):
-                </Typography>
-                <Typography variant="body2" component="pre" sx={{ mt: 1, fontSize: '0.8rem' }}>
-                  {this.state.error.toString()}
-                </Typography>
+              <div style={{ marginTop: 12, padding: 12, background: '#f7f7f7', borderRadius: 8, textAlign: 'left', border: '1px solid #eee' }}>
+                <div style={{ color: '#b3261e', fontWeight: 600 }}>Error Details (Development Mode):</div>
+                <pre style={{ marginTop: 8, fontSize: '0.8rem' }}>{this.state.error.toString()}</pre>
                 {this.state.errorInfo && (
-                  <Typography variant="body2" component="pre" sx={{ mt: 1, fontSize: '0.8rem' }}>
-                    {this.state.errorInfo.componentStack}
-                  </Typography>
+                  <pre style={{ marginTop: 8, fontSize: '0.8rem' }}>{this.state.errorInfo.componentStack}</pre>
                 )}
-              </Box>
+              </div>
             )}
-          </Box>
-        </Container>
+          </div>
+        </div>
       );
     }
 

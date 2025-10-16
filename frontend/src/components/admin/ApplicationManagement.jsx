@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../../services/adminService';
-import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack, MenuItem, TextField, Alert, Chip, Dialog, DialogTitle, DialogContent, DialogActions, Collapse, IconButton } from '@mui/material';
-import { Comment, Edit, ExpandMore, ExpandLess, Person } from '@mui/icons-material';
 import ApplicationStatus from '../applications/ApplicationStatus';
-import SkeletonLoader from '../common/SkeletonLoader';
-import AccessibleButton from '../common/AccessibleButton';
+import LoadingSpinner from '../common/LoadingSpinner';
 import { useToast } from '../common/Toast';
 
 const ApplicationManagement = () => {
@@ -17,6 +14,33 @@ const ApplicationManagement = () => {
   const [statusDialog, setStatusDialog] = useState({ open: false, appId: null, status: '', comment: '' });
   const [expandedRows, setExpandedRows] = useState(new Set());
   const { success, error: showError } = useToast();
+
+  const commonStyles = {
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontSize: '14px'
+  };
+
+  const buttonStyle = {
+    ...commonStyles,
+    padding: '8px 16px',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500'
+  };
+
+  const primaryButton = {
+    ...buttonStyle,
+    backgroundColor: '#1976d2',
+    color: 'white'
+  };
+
+  const secondaryButton = {
+    ...buttonStyle,
+    backgroundColor: 'transparent',
+    color: '#1976d2',
+    border: '1px solid #1976d2'
+  };
 
   const toggleRowExpansion = (appId) => {
     const newExpanded = new Set(expandedRows);
@@ -40,7 +64,6 @@ const ApplicationManagement = () => {
       setApplications(data.applications || []);
       setError('');
     } catch (err) {
-      console.error('Load error:', err);
       const errorMsg = err.response?.data?.message || 'Failed to load applications';
       setError(errorMsg);
       showError(errorMsg);
@@ -60,7 +83,6 @@ const ApplicationManagement = () => {
       setStatusDialog({ open: false, appId: null, status: '', comment: '' });
       success('Application status updated successfully');
       await load();
-      setError('');
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to update status';
       setError(errorMsg);
@@ -74,7 +96,6 @@ const ApplicationManagement = () => {
       setNoteDialog({ open: false, appId: null, note: '' });
       success('Note added successfully');
       await load();
-      setError('');
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to add note';
       setError(errorMsg);
@@ -82,231 +103,185 @@ const ApplicationManagement = () => {
     }
   };
 
+  if (loading) return <LoadingSpinner />;
+
   return (
-    <Box>
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} sx={{ mb: 2 }} spacing={2}>
-        <Typography variant="h6">Application Management</Typography>
-        <Stack direction="row" spacing={2}>
-          <TextField select size="small" label="Role Type" value={roleFilter} onChange={e => setRoleFilter(e.target.value)} sx={{ minWidth: 180 }}>
-            <MenuItem value="all">All Roles</MenuItem>
-            <MenuItem value="technical">Technical Only</MenuItem>
-            <MenuItem value="non-technical">Non-Technical Only</MenuItem>
-          </TextField>
-          <TextField select size="small" label="Filter by status" value={filter} onChange={e => setFilter(e.target.value)} sx={{ minWidth: 180 }}>
-            <MenuItem value="">All</MenuItem>
-            <MenuItem value="pending">Pending</MenuItem>
-            <MenuItem value="reviewing">Reviewing</MenuItem>
-            <MenuItem value="shortlisted">Shortlisted</MenuItem>
-            <MenuItem value="rejected">Rejected</MenuItem>
-            <MenuItem value="accepted">Accepted</MenuItem>
-          </TextField>
-        </Stack>
-      </Stack>
+    <div style={{ padding: '20px', ...commonStyles }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#333', margin: 0, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Application Management</h2>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <select 
+            value={roleFilter} 
+            onChange={e => setRoleFilter(e.target.value)}
+            style={{ ...commonStyles, padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px', minWidth: '150px' }}
+          >
+            <option value="all">All Roles</option>
+            <option value="technical">Technical Only</option>
+            <option value="non-technical">Non-Technical Only</option>
+          </select>
+          <select 
+            value={filter} 
+            onChange={e => setFilter(e.target.value)}
+            style={{ ...commonStyles, padding: '8px 12px', border: '1px solid #ccc', borderRadius: '4px', minWidth: '150px' }}
+          >
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="reviewing">Reviewing</option>
+            <option value="shortlisted">Shortlisted</option>
+            <option value="rejected">Rejected</option>
+            <option value="accepted">Accepted</option>
+          </select>
+        </div>
+      </div>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && (
+        <div style={{ padding: '12px', backgroundColor: '#ffebee', border: '1px solid #f44336', borderRadius: '4px', color: '#c62828', marginBottom: '16px', ...commonStyles }}>
+          {error}
+        </div>
+      )}
       
-      <Alert severity="info" sx={{ mb: 2 }}>
+      <div style={{ padding: '12px', backgroundColor: '#e3f2fd', border: '1px solid #2196f3', borderRadius: '4px', color: '#1565c0', marginBottom: '16px', ...commonStyles }}>
         <strong>Admin Role:</strong> Full management for non-technical roles. For technical roles, you can only accept/reject applications that have been shortlisted by the bot.
-      </Alert>
+      </div>
 
-      {loading ? (
-        <SkeletonLoader variant="table" count={5} />
-      ) : (
-        <Paper variant="outlined">
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Job & Role Type</TableCell>
-                <TableCell>Applicant</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="center">Profile</TableCell>
-                <TableCell align="center">Notes</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {applications.map(a => (
-                <>
-                  <TableRow key={a._id} hover sx={{ '&:hover': { backgroundColor: 'action.hover' } }}>
-                    <TableCell>
-                      <Stack>
-                        <Typography variant="body2">{a.jobId?.title}</Typography>
-                        <Chip 
-                          size="small" 
-                          label={a.jobId?.roleCategory || 'unknown'} 
-                          color={a.jobId?.roleCategory === 'technical' ? 'primary' : 'secondary'}
-                          variant="outlined"
-                        />
-                      </Stack>
-                    </TableCell>
-                    <TableCell>{a.applicantId?.username} ({a.applicantId?.email})</TableCell>
-                    <TableCell><ApplicationStatus status={a.status} /></TableCell>
-                    <TableCell align="center">
-                      <IconButton
-                        size="small"
-                        onClick={() => toggleRowExpansion(a._id)}
-                        aria-label="View profile details"
+      <div style={{ backgroundColor: 'white', border: '1px solid #e0e0e0', borderRadius: '8px', overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', ...commonStyles }}>
+          <thead>
+            <tr style={{ backgroundColor: '#f5f5f5' }}>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Job & Role Type</th>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Applicant</th>
+              <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Status</th>
+              <th style={{ padding: '12px', textAlign: 'center', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Profile</th>
+              <th style={{ padding: '12px', textAlign: 'center', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Notes</th>
+              <th style={{ padding: '12px', textAlign: 'right', borderBottom: '1px solid #e0e0e0', fontWeight: '600' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {applications.map(a => (
+              <tr key={a._id} style={{ borderBottom: '1px solid #e0e0e0' }}>
+                <td style={{ padding: '12px' }}>
+                  <div>
+                    <div style={{ fontWeight: '500', marginBottom: '4px' }}>{a.jobId?.title}</div>
+                    <span style={{ 
+                      padding: '2px 8px', 
+                      backgroundColor: a.jobId?.roleCategory === 'technical' ? '#e3f2fd' : '#fce4ec', 
+                      color: a.jobId?.roleCategory === 'technical' ? '#1976d2' : '#c2185b',
+                      borderRadius: '12px',
+                      fontSize: '12px'
+                    }}>
+                      {a.jobId?.roleCategory || 'unknown'}
+                    </span>
+                  </div>
+                </td>
+                <td style={{ padding: '12px' }}>{a.applicantId?.username} ({a.applicantId?.email})</td>
+                <td style={{ padding: '12px' }}><ApplicationStatus status={a.status} /></td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>
+                  <button
+                    onClick={() => toggleRowExpansion(a._id)}
+                    style={{ ...secondaryButton, padding: '4px 8px' }}
+                  >
+                    👤 {expandedRows.has(a._id) ? '▲' : '▼'}
+                  </button>
+                </td>
+                <td style={{ padding: '12px', textAlign: 'center' }}>
+                  {a.jobId?.roleCategory === 'non-technical' ? (
+                    <button
+                      onClick={() => setNoteDialog({ open: true, appId: a._id, note: '' })}
+                      style={{ ...secondaryButton, padding: '4px 8px' }}
+                    >
+                      💬 Add Note
+                    </button>
+                  ) : (
+                    <span style={{ color: '#666' }}>Bot Managed</span>
+                  )}
+                </td>
+                <td style={{ padding: '12px', textAlign: 'right' }}>
+                  {a.jobId?.roleCategory === 'non-technical' ? (
+                    <button
+                      onClick={() => setStatusDialog({ open: true, appId: a._id, status: a.status, comment: '' })}
+                      style={{ ...primaryButton, padding: '6px 12px' }}
+                    >
+                      ✏️ Update Status
+                    </button>
+                  ) : a.status === 'shortlisted' ? (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => setStatusDialog({ open: true, appId: a._id, status: 'accepted', comment: '' })}
+                        style={{ ...primaryButton, backgroundColor: '#2e7d32', padding: '6px 12px' }}
                       >
-                        <Person />
-                        {expandedRows.has(a._id) ? <ExpandLess /> : <ExpandMore />}
-                      </IconButton>
-                    </TableCell>
-                    <TableCell align="center">
-                      {a.jobId?.roleCategory === 'non-technical' && (
-                        <AccessibleButton
-                          size="small"
-                          startIcon={<Comment />}
-                          onClick={() => setNoteDialog({ open: true, appId: a._id, note: '' })}
-                          variant="outlined"
-                          ariaLabel={`Add note to application for ${a.jobId?.title}`}
-                        >
-                          Add Note
-                        </AccessibleButton>
-                      )}
-                      {a.jobId?.roleCategory === 'technical' && (
-                        <Typography variant="body2" color="text.secondary">Bot Managed</Typography>
-                      )}
-                    </TableCell>
-                    <TableCell align="right">
-                      {a.jobId?.roleCategory === 'non-technical' ? (
-                        <AccessibleButton
-                          size="small"
-                          startIcon={<Edit />}
-                          onClick={() => setStatusDialog({ open: true, appId: a._id, status: a.status, comment: '' })}
-                          variant="contained"
-                          color="primary"
-                          ariaLabel={`Update status for application to ${a.jobId?.title}`}
-                        >
-                          Update Status
-                        </AccessibleButton>
-                      ) : a.status === 'shortlisted' ? (
-                        <Stack direction="row" spacing={1}>
-                          <AccessibleButton
-                            size="small"
-                            onClick={() => setStatusDialog({ open: true, appId: a._id, status: 'accepted', comment: '' })}
-                            variant="contained"
-                            color="success"
-                            ariaLabel={`Accept application for ${a.jobId?.title}`}
-                          >
-                            Accept
-                          </AccessibleButton>
-                          <AccessibleButton
-                            size="small"
-                            onClick={() => setStatusDialog({ open: true, appId: a._id, status: 'rejected', comment: '' })}
-                            variant="contained"
-                            color="error"
-                            ariaLabel={`Reject application for ${a.jobId?.title}`}
-                          >
-                            Reject
-                          </AccessibleButton>
-                        </Stack>
-                      ) : (
-                        <Typography variant="body2" color="text.secondary">
-                          {a.status === 'accepted' ? 'Accepted' : a.status === 'rejected' ? 'Rejected' : 'Bot Processing'}
-                        </Typography>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={6} sx={{ py: 0 }}>
-                      <Collapse in={expandedRows.has(a._id)} timeout="auto" unmountOnExit>
-                        <Box sx={{ p: 2, bgcolor: 'grey.50' }}>
-                          <Typography variant="subtitle2" sx={{ mb: 1 }}>Applicant Profile Details</Typography>
-                          {a.applicantId?.profile ? (
-                            <Stack spacing={1}>
-                              <Typography variant="body2"><strong>Name:</strong> {a.applicantId.profile.firstName} {a.applicantId.profile.lastName}</Typography>
-                              <Typography variant="body2"><strong>Phone:</strong> {a.applicantId.profile.phone || 'Not provided'}</Typography>
-                              <Typography variant="body2"><strong>Experience:</strong> {a.applicantId.profile.experience || 0} years</Typography>
-                              <Typography variant="body2"><strong>Education:</strong> {a.applicantId.profile.education || 'Not provided'}</Typography>
-                              <Typography variant="body2"><strong>Address:</strong> {a.applicantId.profile.address || 'Not provided'}</Typography>
-                              {a.applicantId.profile.skills?.length > 0 && (
-                                <Box>
-                                  <Typography variant="body2" sx={{ mb: 0.5 }}><strong>Skills:</strong></Typography>
-                                  <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                                    {a.applicantId.profile.skills.map((skill, idx) => (
-                                      <Chip key={idx} label={skill} size="small" variant="outlined" />
-                                    ))}
-                                  </Stack>
-                                </Box>
-                              )}
-                              {a.applicantId.profile.resume && (
-                                <Typography variant="body2">
-                                  <strong>Resume:</strong> <a href={a.applicantId.profile.resume} target="_blank" rel="noopener noreferrer">View Resume</a>
-                                </Typography>
-                              )}
-                            </Stack>
-                          ) : (
-                            <Alert severity="warning" size="small">Profile not completed by applicant</Alert>
-                          )}
-                        </Box>
-                      </Collapse>
-                    </TableCell>
-                  </TableRow>
-                </>
-              ))}
-            </TableBody>
-          </Table>
-        </Paper>
+                        ✓ Accept
+                      </button>
+                      <button
+                        onClick={() => setStatusDialog({ open: true, appId: a._id, status: 'rejected', comment: '' })}
+                        style={{ ...primaryButton, backgroundColor: '#d32f2f', padding: '6px 12px' }}
+                      >
+                        ✗ Reject
+                      </button>
+                    </div>
+                  ) : (
+                    <span style={{ color: '#666' }}>
+                      {a.status === 'accepted' ? 'Accepted' : a.status === 'rejected' ? 'Rejected' : 'Bot Processing'}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Note Dialog */}
+      {noteDialog.open && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', width: '90%', maxWidth: '500px', ...commonStyles }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>Add Note to Application</h3>
+            <textarea
+              value={noteDialog.note}
+              onChange={(e) => setNoteDialog({ ...noteDialog, note: e.target.value })}
+              placeholder="Add a note that will be visible to the applicant..."
+              style={{ width: '100%', height: '100px', padding: '12px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical', ...commonStyles }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+              <button onClick={() => setNoteDialog({ open: false, appId: null, note: '' })} style={secondaryButton}>Cancel</button>
+              <button onClick={handleAddNote} disabled={!noteDialog.note.trim()} style={{ ...primaryButton, opacity: !noteDialog.note.trim() ? 0.5 : 1 }}>Add Note</button>
+            </div>
+          </div>
+        </div>
       )}
 
-      <Dialog open={noteDialog.open} onClose={() => setNoteDialog({ open: false, appId: null, note: '' })} maxWidth="sm" fullWidth>
-        <DialogTitle>Add Note to Application</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            multiline
-            rows={4}
-            label="Note"
-            value={noteDialog.note}
-            onChange={(e) => setNoteDialog({ ...noteDialog, note: e.target.value })}
-            placeholder="Add a note that will be visible to the applicant..."
-            sx={{ mt: 1 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <AccessibleButton onClick={() => setNoteDialog({ open: false, appId: null, note: '' })} ariaLabel="Cancel adding note">Cancel</AccessibleButton>
-          <AccessibleButton onClick={handleAddNote} variant="contained" disabled={!noteDialog.note.trim()} ariaLabel="Confirm add note">Add Note</AccessibleButton>
-        </DialogActions>
-      </Dialog>
-
-      {/* Status Update Dialog */}
-      <Dialog open={statusDialog.open} onClose={() => setStatusDialog({ open: false, appId: null, status: '', comment: '' })} maxWidth="sm" fullWidth>
-        <DialogTitle>Update Application Status</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField
-              select
-              fullWidth
-              label="New Status"
-              value={statusDialog.status}
-              onChange={(e) => setStatusDialog({ ...statusDialog, status: e.target.value })}
-            >
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="reviewing">Reviewing</MenuItem>
-              <MenuItem value="shortlisted">Shortlisted</MenuItem>
-              <MenuItem value="rejected">Rejected</MenuItem>
-              <MenuItem value="accepted">Accepted</MenuItem>
-            </TextField>
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
-              label="Comment (Optional)"
+      {/* Status Dialog */}
+      {statusDialog.open && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '24px', width: '90%', maxWidth: '500px', ...commonStyles }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>Update Application Status</h3>
+            <div style={{ marginBottom: '16px' }}>
+              <select
+                value={statusDialog.status}
+                onChange={(e) => setStatusDialog({ ...statusDialog, status: e.target.value })}
+                style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '4px', ...commonStyles }}
+              >
+                <option value="pending">Pending</option>
+                <option value="reviewing">Reviewing</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="rejected">Rejected</option>
+                <option value="accepted">Accepted</option>
+              </select>
+            </div>
+            <textarea
               value={statusDialog.comment}
               onChange={(e) => setStatusDialog({ ...statusDialog, comment: e.target.value })}
               placeholder="Add a comment about this status change..."
+              style={{ width: '100%', height: '80px', padding: '12px', border: '1px solid #ccc', borderRadius: '4px', resize: 'vertical', ...commonStyles }}
             />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <AccessibleButton onClick={() => setStatusDialog({ open: false, appId: null, status: '', comment: '' })} ariaLabel="Cancel status update">Cancel</AccessibleButton>
-          <AccessibleButton onClick={handleUpdateStatus} variant="contained" disabled={!statusDialog.status} ariaLabel="Confirm status update">Update Status</AccessibleButton>
-        </DialogActions>
-      </Dialog>
-    </Box>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+              <button onClick={() => setStatusDialog({ open: false, appId: null, status: '', comment: '' })} style={secondaryButton}>Cancel</button>
+              <button onClick={handleUpdateStatus} disabled={!statusDialog.status} style={{ ...primaryButton, opacity: !statusDialog.status ? 0.5 : 1 }}>Update Status</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
 export default ApplicationManagement;
-
-
