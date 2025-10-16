@@ -4,6 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const config = require('./config/config');
+const { limiter, authLimiter } = require('./middleware/rateLimiter');
 const userRoutes = require('./routes/userRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
@@ -15,6 +16,8 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(limiter); // Global rate limiting
+app.use('/api/auth', authLimiter); // Stricter rate limiting for auth routes
 
 // MongoDB Connection
 mongoose.connect(config.mongoURI, {
