@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Paper, TextField, Grid, Chip, Stack, Alert } from '@mui/material';
-import { Person, Save } from '@mui/icons-material';
-import AccessibleButton from '../common/AccessibleButton';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
 import { useToast } from '../common/Toast';
+import './UserProfile.css';
 
 const UserProfile = () => {
   const { user } = useAuth();
@@ -74,127 +72,167 @@ const UserProfile = () => {
                            profile.experience !== '' && profile.skills.length > 0;
 
   return (
-    <Box>
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 3 }}>
-        <Person />
-        <Typography variant="h6">My Profile</Typography>
-        <Chip 
-          label={isProfileComplete ? 'Complete' : 'Incomplete'} 
-          color={isProfileComplete ? 'success' : 'warning'} 
-          size="small" 
-        />
-      </Stack>
+    <div className="profile-container">
+      <div className="profile-header">
+        <div className="header-title">
+          <svg className="header-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+          <h1>My Profile</h1>
+        </div>
+        <div className={`status-badge ${isProfileComplete ? 'complete' : 'incomplete'}`}>
+          {isProfileComplete ? 'Profile Complete' : 'Profile Incomplete'}
+        </div>
+      </div>
 
       {!isProfileComplete && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
+        <div className="alert alert-warning">
           Please complete your profile to apply for jobs. Missing fields will prevent job applications.
-        </Alert>
+        </div>
       )}
 
-      <Paper sx={{ p: 3 }}>
+      <div className="profile-form-container">
         <form onSubmit={handleSubmit}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="First Name"
-                value={profile.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Last Name"
-                value={profile.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Phone Number"
-                value={profile.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Years of Experience"
-                value={profile.experience}
-                onChange={(e) => handleInputChange('experience', e.target.value)}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Address"
+          <div className="section">
+            <h2 className="section-title">Personal Information</h2>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="firstName">First Name</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  value={profile.firstName}
+                  onChange={(e) => handleInputChange('firstName', e.target.value)}
+                  required
+                  placeholder="Enter your first name"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="lastName">Last Name</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  value={profile.lastName}
+                  onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  required
+                  placeholder="Enter your last name"
+                />
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={profile.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  required
+                  placeholder="Enter your phone number"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="experience">Years of Experience</label>
+                <input
+                  type="number"
+                  id="experience"
+                  value={profile.experience}
+                  onChange={(e) => handleInputChange('experience', e.target.value)}
+                  required
+                  placeholder="Enter years of experience"
+                />
+      
+              </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="address">Address</label>
+              <textarea
+                id="address"
                 value={profile.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Education"
+                rows="2"
+                placeholder="Enter your address"
+              ></textarea>
+            </div>
+
+            <h2 className="section-title">Education & Experience</h2>
+
+            <div className="form-group">
+              <label htmlFor="education">Education</label>
+              <input
+                type="text"
+                id="education"
                 value={profile.education}
                 onChange={(e) => handleInputChange('education', e.target.value)}
                 placeholder="e.g., Bachelor's in Computer Science"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>Skills</Typography>
-              <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-                <TextField
-                  label="Add Skill"
+            </div>
+
+            <h2 className="section-title">Skills & Resume</h2>
+
+            <div className="form-group">
+              <label>Skills</label>
+              <div className="skills-input">
+                <input
+                  type="text"
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                  placeholder="Type a skill and press Enter"
                 />
-                <AccessibleButton onClick={addSkill} variant="outlined">Add</AccessibleButton>
-              </Stack>
-              <Stack direction="row" spacing={1} flexWrap="wrap">
+                <button 
+                  type="button"
+                  onClick={addSkill} 
+                  className="btn-add-skill"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="skills-container">
                 {profile.skills.map((skill, index) => (
-                  <Chip
-                    key={index}
-                    label={skill}
-                    onDelete={() => removeSkill(skill)}
-                    color="primary"
-                    variant="outlined"
-                  />
+                  <span key={index} className="skill-tag">
+                    {skill}
+                    <button 
+                      type="button" 
+                      onClick={() => removeSkill(skill)}
+                      className="remove-skill"
+                    >
+                      ×
+                    </button>
+                  </span>
                 ))}
-              </Stack>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Resume URL"
+                {profile.skills.length === 0 && (
+                  <p className="no-skills">No skills added yet</p>
+                )}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="resume">Resume URL</label>
+              <input
+                type="url"
+                id="resume"
                 value={profile.resume}
                 onChange={(e) => handleInputChange('resume', e.target.value)}
                 placeholder="Link to your resume (Google Drive, LinkedIn, etc.)"
               />
-            </Grid>
-            <Grid item xs={12}>
-              <AccessibleButton
+            </div>
+
+            <div className="form-submit">
+              <button
                 type="submit"
-                variant="contained"
-                startIcon={<Save />}
-                loading={loading}
-                fullWidth
+                className="btn-submit"
+                disabled={loading}
               >
-                Save Profile
-              </AccessibleButton>
-            </Grid>
-          </Grid>
-        </form>
-      </Paper>
-    </Box>
+                {loading ? 'Saving...' : 'Save Profile'}
+              </button>
+            </div>
+          </div>
+          </form>
+        </div>
+      </div>
+
   );
 };
 

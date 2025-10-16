@@ -33,7 +33,7 @@ const RegisterPage = () => {
 
   return (
     <div style={{
-      maxWidth: '500px',
+      maxWidth: '450px',
       margin: '0 auto',
       padding: '40px 20px'
     }}>
@@ -50,7 +50,7 @@ const RegisterPage = () => {
           textAlign: 'center',
           marginBottom: '2rem',
           fontWeight: '600',
-          transition: 'color 0.3s ease',
+          transition: 'color 0.3s ease'
         }}>
           Create your account
         </h1>
@@ -313,6 +313,7 @@ const RegisterPage = () => {
 
           <p style={{
             textAlign: 'center',
+            marginTop: '1rem',
             color: '#6b7280',
             fontSize: '0.875rem',
             transition: 'color 0.3s ease'
