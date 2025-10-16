@@ -3,35 +3,43 @@ const AuditLog = require('../models/AuditLog');
 // Get audit logs (admin only)
 exports.getAuditLogs = async (req, res) => {
     try {
+        console.log('Audit logs request query:', req.query);
+        console.log('Requesting user:', req.user?.username, req.user?.role);
+        
         const { page = 1, limit = 20, action, resourceType, userId } = req.query;
         const query = {};
 
         // Add filters if provided
-        if (action) query.action = action;
-        if (resourceType) query.resourceType = resourceType;
-        if (userId) query.userId = userId;
+        if (action && action !== '') query.action = action;
+        if (resourceType && resourceType !== '') query.resourceType = resourceType;
+        if (userId && userId !== '') query.userId = userId;
+
+        console.log('Audit query:', query);
 
         // Pagination
         const skip = (page - 1) * limit;
+        const limitNum = parseInt(limit);
 
         const auditLogs = await AuditLog.find(query)
             .populate('userId', 'username email role')
             .sort({ timestamp: -1 })
             .skip(skip)
-            .limit(parseInt(limit));
+            .limit(limitNum);
 
         // Get total count for pagination
         const total = await AuditLog.countDocuments(query);
 
+        console.log(`Found ${auditLogs.length} audit logs out of ${total} total`);
+
         res.json({
             auditLogs,
             currentPage: parseInt(page),
-            totalPages: Math.ceil(total / limit),
+            totalPages: Math.ceil(total / limitNum),
             totalLogs: total
         });
     } catch (error) {
         console.error('Get audit logs error:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
 

@@ -55,6 +55,12 @@ export const adminService = {
   createBotUser: async (userData) => {
     const response = await api.post(API_ENDPOINTS.ADMIN.CREATE_BOT_USER, userData);
     return response.data;
+  },
+
+  // Get audit logs
+  getAuditLogs: async (params = {}) => {
+    const response = await api.get(API_ENDPOINTS.AUDIT.LOGS, { params });
+    return response.data;
   }
 };
 

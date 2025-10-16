@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Chip, TextField, MenuItem, Stack, Pagination } from '@mui/material';
 import { formatDateTime } from '../../utils/helpers';
+import { auditService } from '../../services/auditService';
 
 const AuditLogs = () => {
   const [logs, setLogs] = useState([]);
@@ -11,13 +12,19 @@ const AuditLogs = () => {
   const loadLogs = async () => {
     setLoading(true);
     try {
-      // This would call the audit API endpoint
-      // const response = await auditService.getAuditLogs(filters);
-      // For now, mock data
-      setLogs([]);
-      setPagination({ totalPages: 1, totalLogs: 0 });
+      console.log('Loading audit logs with filters:', filters);
+      const response = await auditService.getAuditLogs(filters);
+      console.log('Audit logs response:', response);
+      setLogs(response.auditLogs || []);
+      setPagination({ 
+        totalPages: response.totalPages || 1, 
+        totalLogs: response.totalLogs || 0 
+      });
     } catch (error) {
       console.error('Failed to load audit logs:', error);
+      console.error('Error details:', error.response?.data || error.message);
+      setLogs([]);
+      setPagination({ totalPages: 1, totalLogs: 0 });
     }
     setLoading(false);
   };
