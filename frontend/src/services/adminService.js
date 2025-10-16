@@ -1,29 +1,39 @@
 import api from './api';
-import { API_ENDPOINTS } from '../utils/constants';
 
-// Admin service
 export const adminService = {
-  // Get all users (admin only)
-  getAllUsers: async (params = {}) => {
-    const response = await api.get(API_ENDPOINTS.ADMIN.USERS, { params });
+  // Get admin dashboard data
+  getAdminDashboard: async () => {
+    const response = await api.get('/api/admin/dashboard');
     return response.data;
   },
 
-  // Toggle user activation (admin only)
-  toggleUserActivation: async (id, isActive) => {
-    const response = await api.put(API_ENDPOINTS.ADMIN.TOGGLE_USER(id), { isActive });
+  // Get non-technical applications
+  getNonTechnicalApplications: async (params = {}) => {
+    const response = await api.get('/api/admin/applications/non-technical', { params });
     return response.data;
   },
 
-  // Create bot user (admin only)
-  createBotUser: async ({ username, email, password }) => {
-    const response = await api.post(API_ENDPOINTS.ADMIN.CREATE_BOT_USER, { username, email, password });
+  // Update application status with optional comment
+  updateApplicationStatus: async (id, status, comment = '') => {
+    const response = await api.put(`/api/admin/applications/${id}/status`, { status, comment });
     return response.data;
   },
 
-  // Get audit logs (admin only)
-  getAuditLogs: async (params = {}) => {
-    const response = await api.get(API_ENDPOINTS.AUDIT, { params });
+  // Add note to application
+  addApplicationNote: async (id, note) => {
+    const response = await api.post(`/api/admin/applications/${id}/notes`, { note });
+    return response.data;
+  },
+
+  // Create new job role
+  createJobRole: async (jobData) => {
+    const response = await api.post('/api/admin/jobs', jobData);
+    return response.data;
+  },
+
+  // Get application progress tracking
+  getApplicationProgress: async (id) => {
+    const response = await api.get(`/api/admin/applications/${id}/progress`);
     return response.data;
   }
 };

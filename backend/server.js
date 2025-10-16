@@ -10,6 +10,7 @@ const jobRoutes = require('./routes/jobRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 const botRoutes = require('./routes/botRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const botAutomation = require('./services/botAutomation');
 const botMimic = require('./services/botMimic');
@@ -38,6 +39,7 @@ app.use('/api', jobRoutes);
 app.use('/api', applicationRoutes);
 app.use('/api', auditRoutes);
 app.use('/api', botRoutes);
+app.use('/api', adminRoutes);
 app.use('/api', dashboardRoutes);
 
 // 404 handler

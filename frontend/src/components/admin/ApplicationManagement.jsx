@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { applicationService } from '../../services/applicationService';
+import { adminService } from '../../services/adminService';
 import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack, MenuItem, TextField, Button, Alert, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { Comment } from '@mui/icons-material';
+import { Comment, Edit } from '@mui/icons-material';
 import ApplicationStatus from '../applications/ApplicationStatus';
 
 const ApplicationManagement = () => {
@@ -10,15 +10,15 @@ const ApplicationManagement = () => {
   const [roleFilter, setRoleFilter] = useState('non-technical');
   const [error, setError] = useState('');
   const [noteDialog, setNoteDialog] = useState({ open: false, appId: null, note: '' });
+  const [statusDialog, setStatusDialog] = useState({ open: false, appId: null, status: '', comment: '' });
 
   const load = async () => {
     try {
-      let data;
-      if (roleFilter === 'non-technical') {
-        data = await applicationService.getAllApplications({ status: filter || undefined, roleType: 'non-technical', page: 1, limit: 50 });
-      } else {
-        data = await applicationService.getAllApplications({ status: filter || undefined, page: 1, limit: 50 });
-      }
+      const data = await adminService.getNonTechnicalApplications({ 
+        status: filter || undefined, 
+        page: 1, 
+        limit: 50 
+      });
       setApplications(data.applications || []);
       setError('');
     } catch (err) {
@@ -29,9 +29,14 @@ const ApplicationManagement = () => {
 
   useEffect(() => { load(); }, [filter, roleFilter]);
 
-  const handleUpdateStatus = async (id, status) => {
+  const handleUpdateStatus = async () => {
     try {
-      await applicationService.updateApplicationStatus(id, status);
+      await adminService.updateApplicationStatus(
+        statusDialog.appId, 
+        statusDialog.status, 
+        statusDialog.comment
+      );
+      setStatusDialog({ open: false, appId: null, status: '', comment: '' });
       await load();
       setError('');
     } catch (err) {
@@ -41,7 +46,7 @@ const ApplicationManagement = () => {
 
   const handleAddNote = async () => {
     try {
-      await applicationService.addApplicationNote(noteDialog.appId, noteDialog.note);
+      await adminService.addApplicationNote(noteDialog.appId, noteDialog.note);
       setNoteDialog({ open: false, appId: null, note: '' });
       await load();
       setError('');
@@ -114,16 +119,15 @@ const ApplicationManagement = () => {
                   </Button>
                 </TableCell>
                 <TableCell align="right">
-                  {a.jobId?.roleCategory === 'technical' ? (
-                    <Chip label="Bot Managed" color="primary" size="small" />
-                  ) : (
-                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} justifyContent="flex-end">
-                      <Button size="small" onClick={() => handleUpdateStatus(a._id, 'reviewing')}>Reviewing</Button>
-                      <Button size="small" onClick={() => handleUpdateStatus(a._id, 'shortlisted')}>Shortlist</Button>
-                      <Button size="small" color="error" onClick={() => handleUpdateStatus(a._id, 'rejected')}>Reject</Button>
-                      <Button size="small" color="success" onClick={() => handleUpdateStatus(a._id, 'accepted')}>Accept</Button>
-                    </Stack>
-                  )}
+                  <Button
+                    size="small"
+                    startIcon={<Edit />}
+                    onClick={() => setStatusDialog({ open: true, appId: a._id, status: a.status, comment: '' })}
+                    variant="contained"
+                    color="primary"
+                  >
+                    Update Status
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -148,6 +152,41 @@ const ApplicationManagement = () => {
         <DialogActions>
           <Button onClick={() => setNoteDialog({ open: false, appId: null, note: '' })}>Cancel</Button>
           <Button onClick={handleAddNote} variant="contained" disabled={!noteDialog.note.trim()}>Add Note</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Status Update Dialog */}
+      <Dialog open={statusDialog.open} onClose={() => setStatusDialog({ open: false, appId: null, status: '', comment: '' })} maxWidth="sm" fullWidth>
+        <DialogTitle>Update Application Status</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              select
+              fullWidth
+              label="New Status"
+              value={statusDialog.status}
+              onChange={(e) => setStatusDialog({ ...statusDialog, status: e.target.value })}
+            >
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="reviewing">Reviewing</MenuItem>
+              <MenuItem value="shortlisted">Shortlisted</MenuItem>
+              <MenuItem value="rejected">Rejected</MenuItem>
+              <MenuItem value="accepted">Accepted</MenuItem>
+            </TextField>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              label="Comment (Optional)"
+              value={statusDialog.comment}
+              onChange={(e) => setStatusDialog({ ...statusDialog, comment: e.target.value })}
+              placeholder="Add a comment about this status change..."
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setStatusDialog({ open: false, appId: null, status: '', comment: '' })}>Cancel</Button>
+          <Button onClick={handleUpdateStatus} variant="contained" disabled={!statusDialog.status}>Update Status</Button>
         </DialogActions>
       </Dialog>
     </Box>
