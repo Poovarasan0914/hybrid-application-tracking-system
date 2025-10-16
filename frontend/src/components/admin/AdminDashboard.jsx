@@ -1,21 +1,33 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../../services/adminService';
-import { Box, Typography, Grid, Paper, Card, CardContent, Stack, Chip } from '@mui/material';
+import { Box, Typography, Grid, Paper, Card, CardContent, Stack, Chip, IconButton } from '@mui/material';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { GetApp, Search, Compare, Analytics } from '@mui/icons-material';
 import SkeletonLoader from '../common/SkeletonLoader';
 import AnimatedCard from '../common/AnimatedCard';
 import { useToast } from '../common/Toast';
+import { exportService } from '../../services/exportService';
+import AdvancedSearch from '../common/AdvancedSearch';
+import ApplicationComparison from './ApplicationComparison';
+import DataVisualization from '../common/DataVisualization';
 
 const AdminDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [applications, setApplications] = useState([]);
   const { success, error } = useToast();
 
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const data = await adminService.getAdminDashboard();
-        setDashboardData(data);
+        const [dashData, appsData] = await Promise.all([
+          adminService.getAdminDashboard(),
+          adminService.getNonTechnicalApplications({ limit: 50 })
+        ]);
+        setDashboardData(dashData);
+        setApplications(appsData.applications || []);
         success('Dashboard loaded successfully');
       } catch (err) {
         console.error('Failed to load admin dashboard:', err);
@@ -42,9 +54,40 @@ const AdminDashboard = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
+  const handleExport = (format) => {
+    if (format === 'pdf') {
+      exportService.exportToPDF(applications, 'Admin Dashboard Report');
+      success('PDF exported successfully');
+    } else {
+      exportService.exportToExcel(applications, 'admin_dashboard');
+      success('Excel exported successfully');
+    }
+  };
+
+  const handleSearch = (filters) => {
+    console.log('Search filters:', filters);
+    success('Search functionality implemented');
+  };
+
   return (
     <Box>
-      <Typography variant="h5" sx={{ mb: 3 }}>Admin Dashboard - Non-Technical Role Management</Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Typography variant="h5">Admin Dashboard - Non-Technical Role Management</Typography>
+        <Stack direction="row" spacing={1}>
+          <IconButton onClick={() => setSearchOpen(true)} color="primary" title="Advanced Search">
+            <Search />
+          </IconButton>
+          <IconButton onClick={() => setCompareOpen(true)} color="primary" title="Compare Applications">
+            <Compare />
+          </IconButton>
+          <IconButton onClick={() => handleExport('pdf')} color="primary" title="Export PDF">
+            <GetApp />
+          </IconButton>
+          <IconButton onClick={() => handleExport('excel')} color="primary" title="Export Excel">
+            <Analytics />
+          </IconButton>
+        </Stack>
+      </Stack>
       
       {/* Key Metrics */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
@@ -142,6 +185,29 @@ const AdminDashboard = () => {
           </Stack>
         </Paper>
       </AnimatedCard>
+
+      {/* Advanced Data Visualization */}
+      <AnimatedCard animation="grow" delay={700} sx={{ mt: 3 }}>
+        <DataVisualization 
+          data={dashboardData} 
+          title="Advanced Analytics Dashboard"
+        />
+      </AnimatedCard>
+
+      {/* Advanced Search Dialog */}
+      <AdvancedSearch
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSearch={handleSearch}
+        searchType="applications"
+      />
+
+      {/* Application Comparison Dialog */}
+      <ApplicationComparison
+        open={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        applications={applications}
+      />
     </Box>
   );
 };
