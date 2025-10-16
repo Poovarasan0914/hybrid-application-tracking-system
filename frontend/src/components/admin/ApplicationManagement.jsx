@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { applicationService } from '../../services/applicationService';
-import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack, MenuItem, TextField, Button, Alert, Chip } from '@mui/material';
+import { Box, Typography, Paper, Table, TableHead, TableRow, TableCell, TableBody, Stack, MenuItem, TextField, Button, Alert, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Comment } from '@mui/icons-material';
 import ApplicationStatus from '../applications/ApplicationStatus';
 
 const ApplicationManagement = () => {
@@ -8,6 +9,7 @@ const ApplicationManagement = () => {
   const [filter, setFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('non-technical');
   const [error, setError] = useState('');
+  const [noteDialog, setNoteDialog] = useState({ open: false, appId: null, note: '' });
 
   const load = async () => {
     try {
@@ -34,6 +36,17 @@ const ApplicationManagement = () => {
       setError('');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update status');
+    }
+  };
+
+  const handleAddNote = async () => {
+    try {
+      await applicationService.addApplicationNote(noteDialog.appId, noteDialog.note);
+      setNoteDialog({ open: false, appId: null, note: '' });
+      await load();
+      setError('');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to add note');
     }
   };
 
@@ -70,6 +83,7 @@ const ApplicationManagement = () => {
               <TableCell>Job & Role Type</TableCell>
               <TableCell>Applicant</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell align="center">Notes</TableCell>
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -89,6 +103,16 @@ const ApplicationManagement = () => {
                 </TableCell>
                 <TableCell>{a.applicantId?.username} ({a.applicantId?.email})</TableCell>
                 <TableCell><ApplicationStatus status={a.status} /></TableCell>
+                <TableCell align="center">
+                  <Button
+                    size="small"
+                    startIcon={<Comment />}
+                    onClick={() => setNoteDialog({ open: true, appId: a._id, note: '' })}
+                    variant="outlined"
+                  >
+                    Add Note
+                  </Button>
+                </TableCell>
                 <TableCell align="right">
                   {a.jobId?.roleCategory === 'technical' ? (
                     <Chip label="Bot Managed" color="primary" size="small" />
@@ -106,6 +130,26 @@ const ApplicationManagement = () => {
           </TableBody>
         </Table>
       </Paper>
+
+      <Dialog open={noteDialog.open} onClose={() => setNoteDialog({ open: false, appId: null, note: '' })} maxWidth="sm" fullWidth>
+        <DialogTitle>Add Note to Application</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            label="Note"
+            value={noteDialog.note}
+            onChange={(e) => setNoteDialog({ ...noteDialog, note: e.target.value })}
+            placeholder="Add a note that will be visible to the applicant..."
+            sx={{ mt: 1 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNoteDialog({ open: false, appId: null, note: '' })}>Cancel</Button>
+          <Button onClick={handleAddNote} variant="contained" disabled={!noteDialog.note.trim()}>Add Note</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

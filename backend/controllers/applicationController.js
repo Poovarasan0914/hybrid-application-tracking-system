@@ -230,18 +230,20 @@ exports.updateApplicationStatus = async (req, res) => {
         application.status = status;
         await application.save();
 
-        // Add detailed note about who updated it
-        const updateSource = isBot ? 'Bot System' : 'Admin';
-        application.notes.push({
-            text: `Status updated from ${oldStatus} to ${status} by ${updateSource}`,
-            addedBy: req.user._id,
-            addedAt: new Date(),
-            processedBy: isBot ? 'bot' : 'admin',
-            actionType: 'status_change'
-        });
-        await application.save();
+        // Only add automatic notes for technical roles (bot processing)
+        if (isBot && isTechnicalRole) {
+            application.notes.push({
+                text: `Status updated from ${oldStatus} to ${status} by Bot System`,
+                addedBy: req.user._id,
+                addedAt: new Date(),
+                processedBy: 'bot',
+                actionType: 'status_change'
+            });
+            await application.save();
+        }
 
         // Create detailed audit log for status change
+        const updateSource = isBot ? 'Bot System' : 'Admin';
         await createAuditLog({
             userId: req.user._id,
             action: 'APPLICATION_STATUS_CHANGE',
@@ -283,10 +285,27 @@ exports.addApplicationNote = async (req, res) => {
 
         application.notes.push({
             text: note,
-            addedBy: req.user._id
+            addedBy: req.user._id,
+            addedAt: new Date(),
+            processedBy: req.user.role,
+            actionType: 'note'
         });
 
         await application.save();
+        
+        // Create audit log for note addition
+        await createAuditLog({
+            userId: req.user._id,
+            action: 'APPLICATION_NOTE_ADDED',
+            resourceType: 'application',
+            resourceId: application._id,
+            description: `${req.user.role} added note to application`,
+            details: {
+                noteText: note,
+                addedBy: req.user.username,
+                timestamp: new Date()
+            }
+        });
         
         // Populate the newly added note's addedBy field
         await application.populate('notes.addedBy', 'username role');
@@ -303,7 +322,7 @@ exports.getApplicationTimeline = async (req, res) => {
     try {
         const application = await Application.findById(req.params.id)
             .populate([
-                { path: 'jobId', select: 'title department' },
+                { path: 'jobId', select: 'title department roleCategory' },
                 { path: 'applicantId', select: 'username email' },
                 { path: 'notes.addedBy', select: 'username role' }
             ]);
@@ -350,6 +369,16 @@ exports.getApplicationTimeline = async (req, res) => {
                     description: log.description || 'Status changed',
                     user: log.userId ? log.userId.username : 'System',
                     status: 'updated'
+                });
+            }
+            if (log.action === 'APPLICATION_NOTE_ADDED') {
+                timeline.push({
+                    type: 'note',
+                    timestamp: log.timestamp,
+                    title: 'Note Added by Admin',
+                    description: log.details?.noteText || 'Note added',
+                    user: log.userId ? log.userId.username : 'Admin',
+                    status: 'commented'
                 });
             }
         });
