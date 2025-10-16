@@ -48,9 +48,9 @@ export const API_ENDPOINTS = {
     ADD_NOTE: (id) => `/api/applications/${id}/notes`
   },
   ADMIN: {
-    USERS: '/admin/users',
-    TOGGLE_USER: (id) => `/admin/users/${id}/activate`,
-    CREATE_BOT_USER: '/admin/users/bots'
+    USERS: '/api/admin/users',
+    TOGGLE_USER: (id) => `/api/admin/users/${id}/activate`,
+    CREATE_BOT_USER: '/api/admin/users/bots'
   },
   AUDIT: '/audit',
   BOT: {

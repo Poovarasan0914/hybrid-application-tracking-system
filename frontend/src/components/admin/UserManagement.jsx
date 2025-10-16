@@ -16,6 +16,9 @@ const UserManagement = () => {
       if (roleFilter) params.role = roleFilter;
       const data = await adminService.getAllUsers(params);
       setUsers(data || []);
+    } catch (error) {
+      console.error('Error loading users:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -24,15 +27,23 @@ const UserManagement = () => {
   useEffect(() => { load(); }, [roleFilter]);
 
   const handleToggle = async (userId, isActive) => {
-    await adminService.toggleUserActivation(userId, isActive);
-    await load();
+    try {
+      await adminService.toggleUserActivation(userId, isActive);
+      await load();
+    } catch (error) {
+      console.error('Error toggling user activation:', error);
+    }
   };
 
   const handleCreateBot = async () => {
-    await adminService.createBotUser(form);
-    setOpen(false);
-    setForm({ username: '', email: '', password: '' });
-    await load();
+    try {
+      await adminService.createBotUser(form);
+      setOpen(false);
+      setForm({ username: '', email: '', password: '' });
+      await load();
+    } catch (error) {
+      console.error('Error creating bot user:', error);
+    }
   };
 
   return (

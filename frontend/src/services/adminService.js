@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from '../utils/constants';
 
 export const adminService = {
   // Get admin dashboard data
@@ -34,6 +35,25 @@ export const adminService = {
   // Get application progress tracking
   getApplicationProgress: async (id) => {
     const response = await api.get(`/api/admin/applications/${id}/progress`);
+    return response.data;
+  },
+
+  // User Management Functions
+  // Get all users (admin only)
+  getAllUsers: async (params = {}) => {
+    const response = await api.get(API_ENDPOINTS.ADMIN.USERS, { params });
+    return response.data;
+  },
+
+  // Toggle user activation status
+  toggleUserActivation: async (userId, isActive) => {
+    const response = await api.put(API_ENDPOINTS.ADMIN.TOGGLE_USER(userId), { isActive });
+    return response.data;
+  },
+
+  // Create bot user
+  createBotUser: async (userData) => {
+    const response = await api.post(API_ENDPOINTS.ADMIN.CREATE_BOT_USER, userData);
     return response.data;
   }
 };
